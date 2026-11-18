@@ -72,7 +72,9 @@ ALERT_STYLES = {
 # =========================================================
 
 st.markdown("""
+
 <style>
+    /* GENERAL PAGE */
     .stApp {
         background-color: #F7F9FC;
     }
@@ -83,6 +85,7 @@ st.markdown("""
         max-width: 1450px;
     }
 
+    /* HEADER */
     .dashboard-header {
         background: linear-gradient(110deg, #DCEEFF, #EFF7FF);
         padding: 20px 25px;
@@ -92,20 +95,21 @@ st.markdown("""
     }
 
     .dashboard-header h1 {
-        color: #174A78;
+        color: #174A78 !important;
         font-size: 27px;
         margin: 0;
     }
 
     .dashboard-header p {
-        color: #54718D;
+        color: #54718D !important;
         font-size: 13px;
         margin: 5px 0 0 0;
     }
 
+    /* BUTTON */
     div.stButton > button {
         background-color: #2878BE;
-        color: white;
+        color: white !important;
         border: none;
         border-radius: 8px;
         font-weight: 600;
@@ -114,10 +118,10 @@ st.markdown("""
 
     div.stButton > button:hover {
         background-color: #185F9E;
-        color: white;
-        border: none;
+        color: white !important;
     }
 
+    /* METRIC CARDS */
     div[data-testid="stMetric"] {
         background: white;
         border: 1px solid #E1EAF3;
@@ -126,19 +130,21 @@ st.markdown("""
     }
 
     div[data-testid="stMetricLabel"] {
-        color: #60758A;
+        color: #60758A !important;
         font-size: 12px;
     }
 
     div[data-testid="stMetricValue"] {
-        color: #174A78;
+        color: #174A78 !important;
         font-size: 23px;
     }
 
-    h2, h3 {
+    /* HEADINGS */
+    h1, h2, h3 {
         color: #244D70;
     }
 
+    /* ALERT CARDS */
     .alert-card {
         padding: 15px 13px;
         border-radius: 11px;
@@ -169,7 +175,87 @@ st.markdown("""
         margin-top: 12px;
         margin-bottom: 12px;
     }
+
+    /* ===================================
+       DARK MODE
+       =================================== */
+
+    [data-theme="dark"] .stApp {
+        background-color: #111827;
+    }
+
+    [data-theme="dark"] .dashboard-header {
+        background: linear-gradient(110deg, #DCEEFF, #EFF7FF);
+        border-color: #A9CBE8;
+    }
+
+    [data-theme="dark"] .dashboard-header h1 {
+        color: #174A78 !important;
+    }
+
+    [data-theme="dark"] .dashboard-header p {
+        color: #54718D !important;
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] h4 {
+        color: #A9D3F5 !important;
+    }
+
+    [data-theme="dark"] p,
+    [data-theme="dark"] label,
+    [data-theme="dark"] .stMarkdown,
+    [data-theme="dark"] .stCaption {
+        color: #E2E8F0;
+    }
+
+    /* Keep KPI cards bright for contrast */
+    [data-theme="dark"] div[data-testid="stMetric"] {
+        background: #F8FBFF;
+        border-color: #B9D3EA;
+    }
+
+    [data-theme="dark"] div[data-testid="stMetricLabel"] {
+        color: #60758A !important;
+    }
+
+    [data-theme="dark"] div[data-testid="stMetricValue"] {
+        color: #174A78 !important;
+    }
+
+    /* Input labels */
+    [data-theme="dark"] [data-testid="stWidgetLabel"] {
+        color: #E2E8F0 !important;
+    }
+
+    /* Expanders */
+    [data-theme="dark"] [data-testid="stExpander"] {
+        border-color: #475569;
+    }
+
+    [data-theme="dark"] [data-testid="stExpander"] summary {
+        color: #E2E8F0;
+    }
+
+    /* Tables */
+    [data-theme="dark"] [data-testid="stDataFrame"] {
+        border: 1px solid #475569;
+        border-radius: 8px;
+    }
+
+    /* Captions */
+    [data-theme="dark"] .stCaption {
+        color: #B8C7D8 !important;
+    }
+
+    /* Dividers */
+    [data-theme="dark"] hr {
+        border-color: #475569;
+    }
 </style>
+
 """, unsafe_allow_html=True)
 
 
@@ -587,6 +673,7 @@ with chart_left:
             line_chart.update_layout(
                 height=330,
                 margin=dict(l=10, r=10, t=15, b=10),
+                font=dict(family="Arial", color="#244D70", size=12),
                 legend_title_text="",
                 xaxis_title="Week",
                 yaxis_title="Demand (units)",
@@ -665,6 +752,7 @@ with chart_right:
         bar_chart.update_layout(
             height=330,
             margin=dict(l=10, r=45, t=15, b=10),
+            font=dict(family="Arial", color="#244D70", size=12),
             showlegend=False,
             xaxis_title="Mean Absolute Error (MAE)",
             yaxis_title="",
