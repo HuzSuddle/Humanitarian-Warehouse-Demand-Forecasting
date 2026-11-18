@@ -1,935 +1,703 @@
 
 import streamlit as st
 import pandas as pd
-import altair as alt
+import plotly.express as px
 from pathlib import Path
-import re
 
-# ==================================================
-# 1. PAGE CONFIGURATION
-# ==================================================
+# --------------------------------------------------
+# PAGE SETTINGS
+# --------------------------------------------------
 
 st.set_page_config(
     page_title="Humanitarian Demand Forecasting",
+   
     layout="wide"
 )
 
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(__file__).resolve().parent
+OUTPUT_DIR = BASE_DIR / "outputs"
 
-# Colour palette
-NAVY = "#17324D"
-BLUE = "#4A90D9"
-TEAL = "#35A99A"
-CORAL = "#E99A75"
-PURPLE = "#9382C5"
-GOLD = "#E7B85C"
+PREDICTION_FILE = BASE_DIR / "all_test_predictions.csv"
+METRICS_FILE = BASE_DIR / "model_comparison_results.csv"
 
-PALETTE = [
-    BLUE, TEAL, CORAL, PURPLE, GOLD,
-    "#5B9BD5", "#78B7A8", "#D989A5"
+MODEL_OPTIONS = [
+    "Naive",
+    "Moving average",
+    "Linear regression",
+    "Decision Tree",
+    "Random Forest",
+    "Neural network"
 ]
 
-MODEL_OPTIONS = {
-    "Naive": "Naive",
-    "Moving Average": "Moving average",
-    "Linear Regression": "Linear regression",
-    "Decision Tree": "Decision Tree",
-    "Random Forest": "Random Forest",
-    "Neural Network": "Neural network"
+MODEL_COLORS = {
+    "Naive": "#A9C7E8",
+    "Moving average": "#7FAEDB",
+    "Linear regression": "#548FCB",
+    "Decision Tree": "#3679B9",
+    "Random Forest": "#205D9A",
+    "Neural network": "#123F70"
 }
 
+ALERT_COLORS = {
+    "CRITICAL": "#FDE2E2",
+    "HIGH": "#FCE8D5",
+    "WARNING": "#FFF4CC",
+    "OK": "#DDF3E4"
+}
 
-# ==================================================
-# 2. PAGE STYLING
-# ==================================================
+# --------------------------------------------------
+# CUSTOM DESIGN
+# --------------------------------------------------
 
 st.markdown("""
 <style>
+    .stApp {
+        background-color: #F7F9FC;
+    }
 
-/* Main page */
-.stApp {
-    background-color: #F4F7FB;
-}
+    .block-container {
+        padding-top: 1.2rem;
+        padding-bottom: 1rem;
+        max-width: 1450px;
+    }
 
-.block-container {
-    padding-top: 1rem;
-    padding-bottom: 0.8rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    max-width: 1500px;
-}
+    .dashboard-header {
+        background: linear-gradient(110deg, #DCEEFF, #EFF7FF);
+        padding: 20px 25px;
+        border-radius: 13px;
+        border: 1px solid #D1E5F8;
+        margin-bottom: 16px;
+    }
 
-/* Header */
-.dashboard-header {
-    background: linear-gradient(110deg, #DCEEFF, #EAF5FF);
-    border: 1px solid #C9E2F7;
-    border-radius: 14px;
-    padding: 17px 22px;
-    margin-bottom: 12px;
-}
+    .dashboard-header h1 {
+        color: #174A78;
+        font-size: 27px;
+        margin: 0;
+        padding: 0;
+    }
 
-.dashboard-title {
-    color: #17324D;
-    font-size: 27px;
-    font-weight: 750;
-    margin: 0;
-}
+    .dashboard-header p {
+        color: #54718D;
+        font-size: 13px;
+        margin: 5px 0 0 0;
+    }
 
-.dashboard-subtitle {
-    color: #526B82;
-    font-size: 13px;
-    margin-top: 4px;
-}
+    div.stButton > button {
+        background-color: #2878BE;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        min-height: 42px;
+    }
 
-/* Section headings */
-h2, h3 {
-    color: #17324D !important;
-}
+    div.stButton > button:hover {
+        background-color: #185F9E;
+        color: white;
+        border: none;
+    }
 
-/* Filter area */
-div[data-testid="stForm"] {
-    background: #FFFFFF;
-    border: 1px solid #DCE5EF;
-    border-radius: 12px;
-    padding: 12px 15px 8px 15px;
-}
+    div[data-testid="stMetric"] {
+        background: white;
+        border: 1px solid #E1EAF3;
+        padding: 12px 15px;
+        border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(30, 70, 110, 0.04);
+    }
 
-/* Buttons */
-div.stButton > button,
-div[data-testid="stFormSubmitButton"] > button {
-    background: #2878BD;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 650;
-    min-height: 38px;
-}
+    div[data-testid="stMetricLabel"] {
+        color: #60758A;
+        font-size: 12px;
+    }
 
-div.stButton > button:hover,
-div[data-testid="stFormSubmitButton"] > button:hover {
-    background: #1D6099;
-    color: white;
-    border: none;
-}
+    div[data-testid="stMetricValue"] {
+        color: #174A78;
+        font-size: 23px;
+    }
 
-/* KPI cards */
-.kpi-card {
-    border-radius: 12px;
-    padding: 12px 14px;
-    min-height: 91px;
-    border: 1px solid rgba(23, 50, 77, 0.08);
-}
+    h2, h3 {
+        color: #244D70;
+    }
 
-.kpi-label {
-    font-size: 12px;
-    font-weight: 650;
-    color: #40566B;
-    margin-bottom: 5px;
-}
+    div[data-testid="stTabs"] button {
+        font-weight: 600;
+    }
 
-.kpi-value {
-    font-size: 25px;
-    font-weight: 750;
-    color: #17324D;
-}
+    .small-note {
+        color: #718399;
+        font-size: 12px;
+    }
 
-.kpi-hint {
-    font-size: 10px;
-    color: #60758A;
-    margin-top: 2px;
-}
-
-/* Chart and table panels */
-.panel {
-    background: white;
-    border: 1px solid #DFE7F0;
-    border-radius: 12px;
-    padding: 12px 14px;
-}
-
-/* Small muted text */
-.small-note {
-    color: #718096;
-    font-size: 11px;
-}
-
-/* Alert cards */
-.alert-card {
-    border-radius: 10px;
-    padding: 10px 12px;
-    text-align: center;
-    border: 1px solid rgba(0,0,0,0.06);
-}
-
-.alert-number {
-    font-size: 23px;
-    font-weight: 750;
-    color: #26394B;
-}
-
-.alert-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: #45596D;
-}
-
-/* Reduce default vertical gaps */
-div[data-testid="stVerticalBlock"] {
-    gap: 0.65rem;
-}
-
-/* Footer */
-.footer {
-    text-align: center;
-    color: #8090A0;
-    font-size: 11px;
-    padding: 5px;
-}
-
+    hr {
+        margin-top: 12px;
+        margin-bottom: 12px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 
-# ==================================================
-# 3. HELPER FUNCTIONS
-# ==================================================
+# --------------------------------------------------
+# HELPER FUNCTIONS
+# --------------------------------------------------
 
 def normalise(value):
-    return re.sub(r"[^a-z0-9]", "", str(value).lower())
+    return str(value).strip().lower().replace("_", " ").replace("-", " ")
 
 
-def find_column(dataframe, possible_names):
-    lookup = {
-        normalise(column): column
-        for column in dataframe.columns
-    }
+def find_column(df, possible_names):
+    """Find a column even if its capitalisation or spacing differs."""
+    lookup = {normalise(col): col for col in df.columns}
 
     for name in possible_names:
-        found = lookup.get(normalise(name))
-        if found:
-            return found
+        if normalise(name) in lookup:
+            return lookup[normalise(name)]
 
     return None
 
 
-def info_popover(explanation):
-    with st.popover("ⓘ"):
-        st.write(explanation)
+def load_csv(path):
+    if path.exists():
+        return pd.read_csv(path)
+    return None
 
 
-def show_kpi(label, value, background, hint=""):
-    st.markdown(
-        f"""
-        <div class="kpi-card" style="background:{background};">
-            <div class="kpi-label">{label}</div>
-            <div class="kpi-value">{value}</div>
-            <div class="kpi-hint">{hint}</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+def format_number(value):
+    if pd.isna(value):
+        return "N/A"
+    return f"{value:,.2f}"
 
 
-def show_alert_card(label, number, background):
-    st.markdown(
-        f"""
-        <div class="alert-card" style="background:{background};">
-            <div class="alert-number">{number}</div>
-            <div class="alert-label">{label}</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+def section_title(title, explanation):
+    st.markdown(f"### {title}")
+    st.caption(explanation)
 
 
-# ==================================================
-# 4. LOAD MAIN DATA
-# ==================================================
+def style_alerts(df, severity_col):
+    """Apply red, orange, yellow and green backgrounds to alert levels."""
 
-@st.cache_data
-def load_data():
-    predictions = pd.read_csv(
-        BASE_DIR / "all_test_predictions.csv"
-    )
+    def colour_severity(value):
+        level = str(value).upper().strip()
 
-    metrics = pd.read_csv(
-        BASE_DIR / "model_comparison_results.csv"
-    )
+        for alert, colour in ALERT_COLORS.items():
+            if alert in level:
+                return f"background-color: {colour}; color: #263746; font-weight: 600;"
 
-    predictions["week_end"] = pd.to_datetime(
-        predictions["week_end"],
-        errors="coerce"
-    )
+        return ""
 
-    return predictions, metrics
+    return df.style.map(colour_severity, subset=[severity_col])
 
 
-@st.cache_data
-def load_alert_data():
-    alert_files = [
-        BASE_DIR / "outputs" / "test_alerts_all_models.csv",
-        BASE_DIR / "outputs" / "walkforward_alerts_all_models.csv"
-    ]
+# --------------------------------------------------
+# LOAD DATA
+# --------------------------------------------------
 
-    for file_path in alert_files:
-        if file_path.exists():
-            return pd.read_csv(file_path), file_path.name
+predictions = load_csv(PREDICTION_FILE)
+metrics = load_csv(METRICS_FILE)
 
-    return None, None
-
-
-try:
-    predictions, metrics = load_data()
-
-except Exception as error:
-    st.error(f"Could not load project files: {error}")
+if predictions is None:
+    st.error("Could not find all_test_predictions.csv. Please check your project folder.")
     st.stop()
 
+if metrics is None:
+    st.error("Could not find model_comparison_results.csv. Please check your project folder.")
+    st.stop()
 
-# ==================================================
-# 5. HEADER
-# ==================================================
+# Optional shortage alert data
+alerts = None
+
+possible_alert_files = [
+    OUTPUT_DIR / "test_alerts_all_models.csv",
+    OUTPUT_DIR / "walkforward_alerts_all_models.csv"
+]
+
+for file in possible_alert_files:
+    if file.exists():
+        alerts = pd.read_csv(file)
+        break
+
+
+# --------------------------------------------------
+# HEADER
+# --------------------------------------------------
 
 st.markdown("""
 <div class="dashboard-header">
-    <div class="dashboard-title">
-        Humanitarian Warehouse Demand Forecasting
-    </div>
-    <div class="dashboard-subtitle">
-        AI-based demand forecasting and inventory risk analysis
-        for humanitarian supplies
-    </div>
+    <h1>Humanitarian Warehouse Demand Forecasting</h1>
+    <p>Weekly demand prediction, model comparison and inventory shortage monitoring</p>
 </div>
 """, unsafe_allow_html=True)
 
 
-# ==================================================
-# 6. DATASET SUMMARY
-# ==================================================
+# --------------------------------------------------
+# DATASET OVERVIEW
+# --------------------------------------------------
 
-summary1, summary2, summary3 = st.columns(3)
+category_col = find_column(predictions, ["category"])
+sku_col = find_column(predictions, ["sku"])
+week_col = find_column(predictions, ["week_end"])
 
-summary1.markdown(
-    f"<span style='color:#526B82;font-size:12px'>"
-    f"📊 <b>{len(predictions):,}</b> test records</span>",
-    unsafe_allow_html=True
-)
+overview1, overview2, overview3 = st.columns(3)
 
-summary2.markdown(
-    f"<span style='color:#526B82;font-size:12px'>"
-    f"📦 <b>{predictions['category'].nunique()}</b> supply categories</span>",
-    unsafe_allow_html=True
-)
+with overview1:
+    st.metric("Prediction Records", f"{len(predictions):,}")
 
-summary3.markdown(
-    f"<span style='color:#526B82;font-size:12px'>"
-    f"🏷️ <b>{predictions['sku'].nunique()}</b> items analysed</span>",
-    unsafe_allow_html=True
-)
-
-
-# ==================================================
-# 7. FILTERS
-# ==================================================
-
-with st.form("model_selection"):
-
-    filter1, filter2, filter3, filter4 = st.columns(
-        [1.2, 1.2, 1.2, 0.8],
-        vertical_alignment="bottom"
+with overview2:
+    st.metric(
+        "Supply Categories",
+        predictions[category_col].nunique() if category_col else "N/A"
     )
 
-    with filter1:
-        selected_model = st.selectbox(
-            "Forecasting Model",
-            list(MODEL_OPTIONS.keys())
-        )
-
-    with filter2:
-        category_options = ["All Categories"] + sorted(
-            predictions["category"].dropna().unique().tolist()
-        )
-
-        selected_category = st.selectbox(
-            "Supply Category",
-            category_options
-        )
-
-    filtered_skus = predictions.copy()
-
-    if selected_category != "All Categories":
-        filtered_skus = filtered_skus[
-            filtered_skus["category"] == selected_category
-        ]
-
-    sku_options = ["All Items"] + sorted(
-        filtered_skus["sku"].dropna().unique().tolist()
+with overview3:
+    st.metric(
+        "Items / SKUs",
+        predictions[sku_col].nunique() if sku_col else "N/A"
     )
 
-    with filter3:
-        selected_sku = st.selectbox(
-            "Item / SKU",
-            sku_options
+st.divider()
+
+
+# --------------------------------------------------
+# FILTERS
+# --------------------------------------------------
+
+st.markdown("### Forecast Settings")
+
+filter1, filter2, filter3, filter4 = st.columns([1.2, 1.2, 1.2, 0.8])
+
+with filter1:
+    selected_model = st.selectbox(
+        "Select Model",
+        MODEL_OPTIONS
+    )
+
+with filter2:
+    if category_col:
+        categories = ["All Categories"] + sorted(
+            predictions[category_col].dropna().unique().tolist()
+        )
+        selected_category = st.selectbox("Supply Category", categories)
+    else:
+        selected_category = "All Categories"
+
+with filter3:
+    if sku_col:
+        available_skus = predictions.copy()
+
+        if selected_category != "All Categories" and category_col:
+            available_skus = available_skus[
+                available_skus[category_col] == selected_category
+            ]
+
+        sku_options = ["All SKUs"] + sorted(
+            available_skus[sku_col].dropna().unique().tolist()
         )
 
-    with filter4:
-        st.write("")
-        run_button = st.form_submit_button(
-            "▶ Run Model",
-            use_container_width=True
-        )
+        selected_sku = st.selectbox("Item / SKU", sku_options)
+    else:
+        selected_sku = "All SKUs"
+
+with filter4:
+    st.markdown("<div style='height:27px'></div>", unsafe_allow_html=True)
+    run_model = st.button("▶ Run Model", use_container_width=True)
 
 
-if run_button:
-    st.session_state["has_run"] = True
+# --------------------------------------------------
+# RUN SELECTED MODEL
+# --------------------------------------------------
+
+if run_model:
+    st.session_state["run_model"] = True
     st.session_state["selected_model"] = selected_model
     st.session_state["selected_category"] = selected_category
     st.session_state["selected_sku"] = selected_sku
 
 
-# ==================================================
-# 8. DASHBOARD RESULTS
-# ==================================================
+if "run_model" not in st.session_state:
+    st.info("Choose your model and filters, then click **Run Model** to view the results.")
+    st.stop()
 
-if not st.session_state.get("has_run", False):
 
-    st.info(
-        "Choose a model and filters, then click Run Model "
-        "to display the forecasting results."
+# Use the saved selections after the button is clicked
+selected_model = st.session_state["selected_model"]
+selected_category = st.session_state["selected_category"]
+selected_sku = st.session_state["selected_sku"]
+
+
+# --------------------------------------------------
+# FILTER PREDICTION DATA
+# --------------------------------------------------
+
+filtered = predictions.copy()
+
+if selected_category != "All Categories" and category_col:
+    filtered = filtered[
+        filtered[category_col] == selected_category
+    ]
+
+if selected_sku != "All SKUs" and sku_col:
+    filtered = filtered[
+        filtered[sku_col] == selected_sku
+    ]
+
+if selected_model not in filtered.columns:
+    st.error(f"The prediction column for {selected_model} was not found.")
+    st.stop()
+
+if filtered.empty:
+    st.warning("No prediction records were found for these filters.")
+    st.stop()
+
+filtered[selected_model] = pd.to_numeric(
+    filtered[selected_model], errors="coerce"
+)
+
+filtered["demand_units"] = pd.to_numeric(
+    filtered["demand_units"], errors="coerce"
+)
+
+filtered = filtered.dropna(
+    subset=["demand_units", selected_model]
+)
+
+if filtered.empty:
+    st.warning("There are no valid prediction values for this selection.")
+    st.stop()
+
+
+# --------------------------------------------------
+# MODEL PERFORMANCE METRICS
+# --------------------------------------------------
+
+metric_model_col = find_column(metrics, ["Model"])
+mae_col = find_column(metrics, ["MAE"])
+rmse_col = find_column(metrics, ["RMSE"])
+mae_vs_naive_col = find_column(metrics, ["MAE vs naive"])
+
+model_metrics = None
+
+if metric_model_col:
+    matching_metrics = metrics[
+        metrics[metric_model_col].apply(normalise) == normalise(selected_model)
+    ]
+
+    if not matching_metrics.empty:
+        model_metrics = matching_metrics.iloc[0]
+
+actual_total = filtered["demand_units"].sum()
+predicted_total = filtered[selected_model].sum()
+
+actual_values = filtered["demand_units"]
+predicted_values = filtered[selected_model]
+
+mae_value = (
+    model_metrics[mae_col]
+    if model_metrics is not None and mae_col
+    else (actual_values - predicted_values).abs().mean()
+)
+
+rmse_value = (
+    model_metrics[rmse_col]
+    if model_metrics is not None and rmse_col
+    else (((actual_values - predicted_values) ** 2).mean()) ** 0.5
+)
+
+
+# --------------------------------------------------
+# KPI CARDS
+# --------------------------------------------------
+
+st.divider()
+st.markdown(f"### Results: {selected_model}")
+
+kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+
+with kpi1:
+    st.metric("MAE", format_number(mae_value))
+
+with kpi2:
+    st.metric("RMSE", format_number(rmse_value))
+
+with kpi3:
+    st.metric("Actual Demand", f"{actual_total:,.0f}")
+
+with kpi4:
+    st.metric("Predicted Demand", f"{predicted_total:,.0f}")
+
+st.caption(
+    "MAE and RMSE measure prediction error. Lower values indicate better prediction accuracy. "
+    "Demand totals refer to the currently selected filters."
+)
+
+
+# --------------------------------------------------
+# GRAPHS: SIDE BY SIDE
+# --------------------------------------------------
+
+st.divider()
+
+chart_left, chart_right = st.columns([1.35, 1])
+
+# Actual vs Predicted
+with chart_left:
+    section_title(
+        "Actual vs Predicted Demand",
+        "Compare the actual weekly demand with the selected model's predictions."
     )
 
-else:
+    chart_data = filtered.copy()
 
-    model_name = st.session_state["selected_model"]
-    prediction_column = MODEL_OPTIONS[model_name]
-    category = st.session_state["selected_category"]
-    sku = st.session_state["selected_sku"]
-
-    results = predictions.copy()
-
-    if category != "All Categories":
-        results = results[
-            results["category"] == category
-        ]
-
-    if sku != "All Items":
-        results = results[
-            results["sku"] == sku
-        ]
-
-    results = results.dropna(
-        subset=["week_end", "demand_units", prediction_column]
-    )
-
-    if results.empty:
-        st.warning("No records are available for this selection.")
-        st.stop()
-
-    # Overall model performance
-    model_column = find_column(metrics, ["Model"])
-
-    model_result = pd.DataFrame()
-
-    if model_column:
-        model_result = metrics[
-            metrics[model_column].apply(normalise)
-            == normalise(model_name)
-        ]
-
-    mae_value = "N/A"
-    rmse_value = "N/A"
-
-    if not model_result.empty:
-        metric_row = model_result.iloc[0]
-        mae_value = f"{float(metric_row['MAE']):.2f}"
-        rmse_value = f"{float(metric_row['RMSE']):.2f}"
-
-    total_actual = results["demand_units"].sum()
-    total_predicted = results[prediction_column].sum()
-
-    # --------------------------------------------------
-    # KPI CARDS
-    # --------------------------------------------------
-
-    st.markdown(
-        "<div style='font-size:17px;font-weight:700;color:#17324D;"
-        "margin:12px 0 8px 0'>Forecast Overview</div>",
-        unsafe_allow_html=True
-    )
-
-    k1, k2, k3, k4 = st.columns(4)
-
-    with k1:
-        show_kpi(
-            "MAE",
-            mae_value,
-            "#E3F0FF",
-            "Mean Absolute Error"
+    if week_col:
+        chart_data[week_col] = pd.to_datetime(
+            chart_data[week_col], errors="coerce"
         )
-        info_popover(
-            "Mean Absolute Error measures the average absolute "
-            "difference between actual and predicted demand. "
-            "Lower values indicate more accurate predictions. "
-            "This is the overall model score from the evaluation CSV."
-        )
+        chart_data = chart_data.sort_values(week_col)
 
-    with k2:
-        show_kpi(
-            "RMSE",
-            rmse_value,
-            "#E1F4EF",
-            "Root Mean Squared Error"
-        )
-        info_popover(
-            "Root Mean Squared Error gives more weight to larger "
-            "prediction errors. Lower values are better. "
-            "This is the overall model score from the evaluation CSV."
-        )
+        chart_data = chart_data.groupby(week_col, as_index=False)[
+            ["demand_units", selected_model]
+        ].sum()
 
-    with k3:
-        show_kpi(
-            "Actual Demand",
-            f"{total_actual:,.0f}",
-            "#FFF0E5",
-            "Total recorded demand units"
-        )
-        info_popover(
-            "Total actual demand across the selected records "
-            "in the test dataset."
-        )
+        chart_data = chart_data.rename(columns={
+            week_col: "Week",
+            "demand_units": "Actual Demand",
+            selected_model: "Predicted Demand"
+        })
 
-    with k4:
-        show_kpi(
-            "Predicted Demand",
-            f"{total_predicted:,.0f}",
-            "#EEEAFE",
-            "Total forecast demand units"
-        )
-        info_popover(
-            "Total demand predicted by the selected model "
-            "across the selected test records."
-        )
-
-    if not model_result.empty:
-        st.caption(
-            f"Selected model: **{model_name}**  |  "
-            f"MAE improvement vs Naive: "
-            f"**{metric_row.get('MAE vs naive', 'N/A')}**"
-        )
-
-    # --------------------------------------------------
-    # CHARTS SIDE BY SIDE
-    # --------------------------------------------------
-
-    st.markdown(
-        "<div style='font-size:17px;font-weight:700;color:#17324D;"
-        "margin:14px 0 5px 0'>Forecast Visualisation</div>",
-        unsafe_allow_html=True
-    )
-
-    chart_left, chart_right = st.columns(2, gap="medium")
-
-    # Actual vs predicted
-    with chart_left:
-
-        heading_col, info_col = st.columns([0.88, 0.12])
-
-        with heading_col:
-            st.markdown("**Actual vs Predicted Demand**")
-
-        with info_col:
-            info_popover(
-                "Compares actual recorded demand with the selected "
-                "model's saved predictions over the test period. "
-                "When All Items is selected, values are added together "
-                "for each week."
-            )
-
-        if sku == "All Items":
-            chart_data = (
-                results.groupby("week_end")[
-                    ["demand_units", prediction_column]
-                ]
-                .sum()
-                .reset_index()
-            )
-        else:
-            chart_data = results[
-                ["week_end", "demand_units", prediction_column]
-            ].copy()
-
-        chart_data = chart_data.rename(
-            columns={
-                "demand_units": "Actual Demand",
-                prediction_column: "Predicted Demand"
-            }
-        )
-
-        chart_long = chart_data.melt(
-            id_vars=["week_end"],
+        chart_data = chart_data.melt(
+            id_vars="Week",
             value_vars=["Actual Demand", "Predicted Demand"],
             var_name="Demand Type",
             value_name="Units"
         )
 
-        demand_chart = (
-            alt.Chart(chart_long)
-            .mark_line(
-                strokeWidth=2.8,
-                point=alt.OverlayMarkDef(size=25)
-            )
-            .encode(
-                x=alt.X(
-                    "week_end:T",
-                    title="Week Ending",
-                    axis=alt.Axis(labelAngle=-35)
+        line_chart = px.line(
+            chart_data,
+            x="Week",
+            y="Units",
+            color="Demand Type",
+            markers=True,
+            color_discrete_map={
+                "Actual Demand": "#174A78",
+                "Predicted Demand": "#4F9BD5"
+            }
+        )
+
+        line_chart.update_layout(
+            height=330,
+            margin=dict(l=10, r=10, t=15, b=10),
+            legend_title_text="",
+            xaxis_title="Week",
+            yaxis_title="Demand (units)",
+            hovermode="x unified"
+        )
+
+        st.plotly_chart(line_chart, use_container_width=True)
+
+    else:
+        st.info("The week_end column was not found, so the weekly graph cannot be displayed.")
+
+
+# Model comparison
+with chart_right:
+    section_title(
+        "Model Comparison",
+        "Compare MAE across all available models. Lower MAE is better."
+    )
+
+    if metric_model_col and mae_col:
+        comparison = metrics[[metric_model_col, mae_col]].copy()
+        comparison[mae_col] = pd.to_numeric(
+            comparison[mae_col], errors="coerce"
+        )
+        comparison = comparison.dropna(subset=[mae_col])
+        comparison = comparison.sort_values(mae_col, ascending=True)
+
+        comparison["Colour"] = comparison[metric_model_col].map(
+            lambda name: MODEL_COLORS.get(
+                next(
+                    (m for m in MODEL_COLORS if normalise(m) == normalise(name)),
+                    None
                 ),
-                y=alt.Y("Units:Q", title="Demand Units"),
-                color=alt.Color(
-                    "Demand Type:N",
-                    scale=alt.Scale(
-                        domain=["Actual Demand", "Predicted Demand"],
-                        range=[BLUE, TEAL]
-                    ),
-                    legend=alt.Legend(orient="bottom")
-                ),
-                tooltip=[
-                    alt.Tooltip("week_end:T", title="Week"),
-                    alt.Tooltip("Demand Type:N"),
-                    alt.Tooltip("Units:Q", format=",.0f")
-                ]
-            )
-            .properties(height=245)
-            .configure_view(strokeOpacity=0)
-            .configure_axis(
-                gridColor="#E9EEF4",
-                labelColor="#526579",
-                titleColor="#526579"
-            )
-            .configure_legend(
-                labelColor="#526579",
-                titleColor="#526579"
+                "#7FAEDB"
             )
         )
 
-        st.altair_chart(
-            demand_chart,
-            use_container_width=True
+        bar_chart = px.bar(
+            comparison,
+            x=mae_col,
+            y=metric_model_col,
+            orientation="h",
+            color="Colour",
+            color_discrete_map="identity",
+            text=mae_col
         )
 
-    # Model comparison
-    with chart_right:
-
-        heading_col, info_col = st.columns([0.88, 0.12])
-
-        with heading_col:
-            st.markdown("**Model Comparison (MAE)**")
-
-        with info_col:
-            info_popover(
-                "Compares the overall Mean Absolute Error of the "
-                "available forecasting models. Lower bars mean "
-                "smaller average prediction errors. These values "
-                "come from the saved model comparison results."
-            )
-
-        if {"Model", "MAE"}.issubset(metrics.columns):
-
-            comparison_data = metrics[
-                ["Model", "MAE"]
-            ].copy()
-
-            comparison_data["MAE"] = pd.to_numeric(
-                comparison_data["MAE"],
-                errors="coerce"
-            )
-
-            comparison_data = comparison_data.dropna(
-                subset=["MAE"]
-            )
-
-            model_order = comparison_data.sort_values(
-                "MAE"
-            )["Model"].tolist()
-
-            comparison_chart = (
-                alt.Chart(comparison_data)
-                .mark_bar(
-                    cornerRadiusEnd=5,
-                    size=25
-                )
-                .encode(
-                    x=alt.X(
-                        "Model:N",
-                        sort=model_order,
-                        title=None,
-                        axis=alt.Axis(
-                            labelAngle=-25,
-                            labelLimit=150
-                        )
-                    ),
-                    y=alt.Y(
-                        "MAE:Q",
-                        title="Mean Absolute Error"
-                    ),
-                    color=alt.Color(
-                        "Model:N",
-                        scale=alt.Scale(
-                            domain=model_order,
-                            range=PALETTE[:len(model_order)]
-                        ),
-                        legend=None
-                    ),
-                    tooltip=[
-                        alt.Tooltip("Model:N"),
-                        alt.Tooltip("MAE:Q", format=".2f")
-                    ]
-                )
-                .properties(height=245)
-                .configure_view(strokeOpacity=0)
-                .configure_axis(
-                    gridColor="#E9EEF4",
-                    labelColor="#526579",
-                    titleColor="#526579"
-                )
-            )
-
-            st.altair_chart(
-                comparison_chart,
-                use_container_width=True
-            )
-
-        else:
-            st.info("Model comparison data is unavailable.")
-
-    # --------------------------------------------------
-    # INVENTORY SHORTAGE ALERTS
-    # --------------------------------------------------
-
-    st.markdown("---")
-
-    alert_heading, alert_info = st.columns([0.92, 0.08])
-
-    with alert_heading:
-        st.markdown(
-            "<div style='font-size:17px;font-weight:700;"
-            "color:#17324D'>Inventory Shortage Alerts</div>",
-            unsafe_allow_html=True
+        bar_chart.update_traces(
+            texttemplate="%{text:.2f}",
+            textposition="outside",
+            cliponaxis=False
         )
 
-    with alert_info:
-        info_popover(
-            "These are forecast-based inventory risk alerts from "
-            "the notebook's saved alert outputs. They are not "
-            "confirmed real-world stockouts. The notebook uses "
-            "projected stock and predicted demand to classify risk."
+        bar_chart.update_layout(
+            height=330,
+            margin=dict(l=10, r=45, t=15, b=10),
+            showlegend=False,
+            xaxis_title="Mean Absolute Error (MAE)",
+            yaxis_title="",
+            yaxis=dict(autorange="reversed")
         )
 
-    alert_data, alert_filename = load_alert_data()
+        st.plotly_chart(bar_chart, use_container_width=True)
+    else:
+        st.info("Model comparison columns could not be identified in the metrics file.")
 
-    if alert_data is None:
 
-        st.info(
-            "No saved alert CSV found. Add the notebook's alert "
-            "CSV files to the outputs folder to display this section."
+# --------------------------------------------------
+# INVENTORY SHORTAGE ALERTS
+# --------------------------------------------------
+
+st.divider()
+
+section_title(
+    "Inventory Shortage Alerts",
+    "Forecast-based inventory risk indicators. These are not confirmed stockouts."
+)
+
+if alerts is None:
+    st.info(
+        "No alert CSV was found. Add test_alerts_all_models.csv or "
+        "walkforward_alerts_all_models.csv inside your outputs folder to display alerts."
+    )
+
+else:
+    alert_data = alerts.copy()
+
+    alert_category_col = find_column(alert_data, ["category"])
+    alert_sku_col = find_column(alert_data, ["sku"])
+    alert_model_col = find_column(alert_data, ["model"])
+    severity_col = find_column(
+        alert_data,
+        ["alert_level", "alert", "severity", "risk_level", "risk"]
+    )
+
+    # Filter alerts using the selected category and SKU
+    if selected_category != "All Categories" and alert_category_col:
+        alert_data = alert_data[
+            alert_data[alert_category_col] == selected_category
+        ]
+
+    if selected_sku != "All SKUs" and alert_sku_col:
+        alert_data = alert_data[
+            alert_data[alert_sku_col] == selected_sku
+        ]
+
+    # Filter by selected model if the alert file contains a model column
+    if alert_model_col:
+        matching_alerts = alert_data[
+            alert_data[alert_model_col].apply(normalise) == normalise(selected_model)
+        ]
+
+        if not matching_alerts.empty:
+            alert_data = matching_alerts
+
+    if severity_col and not alert_data.empty:
+        alert_data[severity_col] = (
+            alert_data[severity_col].astype(str).str.upper().str.strip()
+        )
+
+        critical_count = alert_data[severity_col].str.contains(
+            "CRITICAL", na=False
+        ).sum()
+
+        high_count = alert_data[severity_col].str.contains(
+            "HIGH", na=False
+        ).sum()
+
+        warning_count = alert_data[severity_col].str.contains(
+            "WARNING", na=False
+        ).sum()
+
+        ok_count = alert_data[severity_col].str.fullmatch(
+            "OK", na=False
+        ).sum()
+
+        alert1, alert2, alert3, alert4 = st.columns(4)
+
+        with alert1:
+            st.metric("🔴 Critical", int(critical_count))
+
+        with alert2:
+            st.metric("🟠 High", int(high_count))
+
+        with alert3:
+            st.metric("🟡 Warning", int(warning_count))
+
+        with alert4:
+            st.metric("🟢 OK", int(ok_count))
+
+        # Colour-coded alert table
+        with st.expander("View shortage alert details", expanded=True):
+            st.dataframe(
+                style_alerts(alert_data, severity_col),
+                use_container_width=True,
+                hide_index=True
+            )
+
+        st.download_button(
+            "Download Alert Results",
+            data=alert_data.to_csv(index=False).encode("utf-8"),
+            file_name="shortage_alert_results.csv",
+            mime="text/csv"
         )
 
     elif alert_data.empty:
-
-        st.info("The saved alert file contains no records.")
+        st.info("No alert records match the selected filters.")
 
     else:
-
-        alert_results = alert_data.copy()
-
-        alert_model_col = find_column(
-            alert_results,
-            ["model", "model_name"]
+        st.warning(
+            "An alert file was found, but its severity column could not be identified. "
+            "The available alert data is shown below."
         )
+        st.dataframe(alert_data, use_container_width=True, hide_index=True)
 
-        if alert_model_col:
-            matching_model = alert_results[
-                alert_results[alert_model_col].apply(normalise)
-                == normalise(model_name)
-            ]
 
-            if not matching_model.empty:
-                alert_results = matching_model
+# --------------------------------------------------
+# PREDICTION TABLE
+# --------------------------------------------------
 
-        alert_category_col = find_column(
-            alert_results,
-            ["category", "supply_category"]
-        )
+st.divider()
 
-        if category != "All Categories" and alert_category_col:
-            alert_results = alert_results[
-                alert_results[alert_category_col] == category
-            ]
+with st.expander("View detailed prediction results", expanded=False):
+    result_table = filtered.copy()
 
-        alert_sku_col = find_column(
-            alert_results,
-            ["sku", "item_code"]
-        )
-
-        if sku != "All Items" and alert_sku_col:
-            alert_results = alert_results[
-                alert_results[alert_sku_col].astype(str) == str(sku)
-            ]
-
-        severity_col = find_column(
-            alert_results,
-            ["alert_level", "alert", "severity", "risk_level"]
-        )
-
-        if alert_results.empty:
-
-            st.info("No alert records match the current filters.")
-
-        elif severity_col:
-
-            severity = (
-                alert_results[severity_col]
-                .astype(str)
-                .str.upper()
-                .str.strip()
-            )
-
-            a1, a2, a3, a4 = st.columns(4)
-
-            with a1:
-                show_alert_card(
-                    "CRITICAL",
-                    int(severity.str.contains("CRITICAL").sum()),
-                    "#FBE2E2"
-                )
-
-            with a2:
-                show_alert_card(
-                    "HIGH",
-                    int(severity.str.fullmatch("HIGH").sum()),
-                    "#FCEAD9"
-                )
-
-            with a3:
-                show_alert_card(
-                    "WARNING",
-                    int(severity.str.contains("WARNING").sum()),
-                    "#FFF4D6"
-                )
-
-            with a4:
-                show_alert_card(
-                    "OK",
-                    int(severity.str.fullmatch("OK").sum()),
-                    "#DDF3E8"
-                )
-
-            st.caption(f"Source: {alert_filename}")
-
-            st.dataframe(
-                alert_results,
-                use_container_width=True,
-                hide_index=True,
-                height=220
-            )
-
-            st.download_button(
-                "Download Alert Results",
-                data=alert_results.to_csv(index=False),
-                file_name="shortage_alerts.csv",
-                mime="text/csv"
-            )
-
-        else:
-
-            st.caption(f"Source: {alert_filename}")
-
-            st.dataframe(
-                alert_results,
-                use_container_width=True,
-                hide_index=True,
-                height=220
-            )
-
-    # --------------------------------------------------
-    # PREDICTION RESULTS TABLE
-    # --------------------------------------------------
-
-    st.markdown("---")
-
-    table_heading, table_info = st.columns([0.92, 0.08])
-
-    with table_heading:
-        st.markdown(
-            "<div style='font-size:17px;font-weight:700;"
-            "color:#17324D'>Prediction Results</div>",
-            unsafe_allow_html=True
-        )
-
-    with table_info:
-        info_popover(
-            "The table displays actual and predicted demand for "
-            "each selected test record. Prediction Error is "
-            "predicted demand minus actual demand. Absolute Error "
-            "shows the size of the error without its sign."
-        )
-
-    table = results.copy()
-
-    table["Prediction Error"] = (
-        table[prediction_column] - table["demand_units"]
+    result_table["Prediction Error"] = (
+        result_table[selected_model] - result_table["demand_units"]
     )
 
-    table["Absolute Error"] = (
-        table["Prediction Error"].abs()
+    result_table["Absolute Error"] = (
+        result_table["Prediction Error"].abs()
     )
-
-    table = table.rename(
-        columns={
-            "week_end": "Week Ending",
-            "sku": "Item Code",
-            "item_name": "Item Name",
-            "category": "Category",
-            "demand_units": "Actual Demand",
-            prediction_column: "Predicted Demand"
-        }
-    )
-
-    display_columns = [
-        "Week Ending",
-        "Item Code",
-        "Item Name",
-        "Category",
-        "Actual Demand",
-        "Predicted Demand",
-        "Prediction Error",
-        "Absolute Error"
-    ]
-
-    table = table[display_columns].sort_values("Week Ending")
 
     st.dataframe(
-        table,
+        result_table,
         use_container_width=True,
-        hide_index=True,
-        height=270
+        hide_index=True
     )
 
     st.download_button(
-        "⬇ Download Prediction Results",
-        data=table.to_csv(index=False),
-        file_name=f"{model_name.replace(' ', '_')}_results.csv",
+        "Download Prediction Results",
+        data=result_table.to_csv(index=False).encode("utf-8"),
+        file_name="demand_predictions.csv",
         mime="text/csv"
     )
 
 
-# ==================================================
-# 9. FOOTER
-# ==================================================
+# --------------------------------------------------
+# FOOTER
+# --------------------------------------------------
 
 st.markdown("""
-<div class="footer">
-    CSCI218 | Foundations of Artificial Intelligence |
-    Humanitarian Warehouse Demand Forecasting
-</div>
+<hr>
+<p style="text-align:center; color:#8293A5; font-size:11px;">
+    Humanitarian Warehouse Demand Forecasting | CSCI218 Foundations of AI
+</p>
 """, unsafe_allow_html=True)
