@@ -290,7 +290,7 @@ for file in possible_alert_files:
 
 st.markdown("""
 <div class="dashboard-header">
-    <h1>📦 Humanitarian Warehouse Demand Forecasting</h1>
+    <h1>Humanitarian Warehouse Demand Forecasting</h1>
     <p>Weekly demand prediction, model comparison and inventory shortage monitoring</p>
 </div>
 """, unsafe_allow_html=True)
