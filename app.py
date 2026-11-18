@@ -49,91 +49,46 @@ ALERT_COLORS = {
 # CUSTOM DESIGN
 # --------------------------------------------------
 
+# Coloured alert cards 
 st.markdown("""
 <style>
-    .stApp {
-        background-color: #F7F9FC;
-    }
-
-    .block-container {
-        padding-top: 1.2rem;
-        padding-bottom: 1rem;
-        max-width: 1450px;
-    }
-
-    .dashboard-header {
-        background: linear-gradient(110deg, #DCEEFF, #EFF7FF);
-        padding: 20px 25px;
-        border-radius: 13px;
-        border: 1px solid #D1E5F8;
-        margin-bottom: 16px;
-    }
-
-    .dashboard-header h1 {
-        color: #174A78;
-        font-size: 27px;
-        margin: 0;
-        padding: 0;
-    }
-
-    .dashboard-header p {
-        color: #54718D;
-        font-size: 13px;
-        margin: 5px 0 0 0;
-    }
-
-    div.stButton > button {
-        background-color: #2878BE;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        min-height: 42px;
-    }
-
-    div.stButton > button:hover {
-        background-color: #185F9E;
-        color: white;
-        border: none;
-    }
-
-    div[data-testid="stMetric"] {
-        background: white;
-        border: 1px solid #E1EAF3;
-        padding: 12px 15px;
-        border-radius: 10px;
-        box-shadow: 0 1px 3px rgba(30, 70, 110, 0.04);
-    }
-
-    div[data-testid="stMetricLabel"] {
-        color: #60758A;
-        font-size: 12px;
-    }
-
-    div[data-testid="stMetricValue"] {
-        color: #174A78;
-        font-size: 23px;
-    }
-
-    h2, h3 {
-        color: #244D70;
-    }
-
-    div[data-testid="stTabs"] button {
-        font-weight: 600;
-    }
-
-    .small-note {
-        color: #718399;
-        font-size: 12px;
-    }
-
-    hr {
-        margin-top: 12px;
-        margin-bottom: 12px;
-    }
+.alert-card {
+    padding: 13px 15px;
+    border-radius: 9px;
+    text-align: left;
+    min-height: 83px;
+    color: #263746;
+}
+.alert-card .alert-name {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+.alert-card .alert-count {
+    font-size: 27px;
+    font-weight: 750;
+    margin-top: 5px;
+}
 </style>
 """, unsafe_allow_html=True)
+
+alert1, alert2, alert3, alert4 = st.columns(4)
+
+alert_cards = [
+    (alert1, "CRITICAL", int(critical_count), "#F8D7DA", "#842029"),
+    (alert2, "HIGH", int(high_count), "#FCE1CC", "#984B13"),
+    (alert3, "WARNING", int(warning_count), "#FFF0BD", "#806000"),
+    (alert4, "OK", int(ok_count), "#D5EDDC", "#23643B")
+]
+
+for column, name, count, background, text_colour in alert_cards:
+    with column:
+        st.markdown(f"""
+        <div class="alert-card" style="background:{background}; color:{text_colour};">
+            <div class="alert-name">{name}</div>
+            <div class="alert-count">{count}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # --------------------------------------------------
