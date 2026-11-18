@@ -11,7 +11,6 @@ from pathlib import Path
 
 st.set_page_config(
     page_title="Humanitarian Demand Forecasting",
-  
     layout="wide"
 )
 
@@ -67,11 +66,8 @@ ALERT_STYLES = {
 }
 
 
-
-
-
 # =========================================================
-# CUSTOM CSS 
+# CUSTOM CSS - LIGHT MODE
 # =========================================================
 
 st.markdown("""
@@ -144,6 +140,28 @@ div.stButton > button {
 div.stButton > button:hover {
     background-color: #185F9E !important;
     color: white !important;
+}
+
+/* INFO BUTTONS */
+div[data-testid="stPopover"] > button {
+    color: #508FC9 !important;
+    background-color: transparent !important;
+    border: 1px solid #D1E5F8 !important;
+    border-radius: 50% !important;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0 7px !important;
+    font-size: 13px;
+}
+
+div[data-testid="stPopover"] > button:hover {
+    background-color: #EAF4FD !important;
+    border-color: #75A9D8 !important;
+}
+
+/* POPOVER CONTENT */
+div[data-testid="stPopoverBody"] {
+    background-color: #FFFFFF !important;
 }
 
 /* METRIC CARDS */
@@ -243,8 +261,6 @@ hr {
 """, unsafe_allow_html=True)
 
 
-
-
 # =========================================================
 # HELPER FUNCTIONS
 # =========================================================
@@ -279,6 +295,12 @@ def format_number(value):
     if pd.isna(value):
         return "N/A"
     return f"{value:,.2f}"
+
+
+# CLICKABLE INFO POPOVER
+def show_info(text):
+    with st.popover("ⓘ"):
+        st.write(text)
 
 
 def show_alert_card(level, count):
@@ -327,22 +349,31 @@ predictions = load_csv(PREDICTION_FILE)
 metrics = load_csv(METRICS_FILE)
 
 if predictions is None:
-    st.error("Could not find all_test_predictions.csv. Check your project folder.")
+    st.error(
+        "Could not find all_test_predictions.csv. "
+        "Check your project folder."
+    )
     st.stop()
 
 if metrics is None:
-    st.error("Could not find model_comparison_results.csv. Check your project folder.")
+    st.error(
+        "Could not find model_comparison_results.csv. "
+        "Check your project folder."
+    )
     st.stop()
 
 required_columns = ["demand_units"]
 
 for column in required_columns:
     if column not in predictions.columns:
-        st.error(f"Required column '{column}' is missing from the predictions CSV.")
+        st.error(
+            f"Required column '{column}' is missing "
+            "from the predictions CSV."
+        )
         st.stop()
 
 
-# Load shortage alert data if available
+# LOAD SHORTAGE ALERT DATA
 alerts = None
 
 possible_alert_files = [
@@ -379,21 +410,52 @@ week_col = find_column(predictions, ["week_end"])
 overview1, overview2, overview3 = st.columns(3)
 
 with overview1:
-    st.metric("Prediction Records", f"{len(predictions):,}")
+
+    st.metric(
+        "Prediction Records",
+        f"{len(predictions):,}"
+    )
+
+    show_info(
+        "Total number of prediction records available "
+        "in the dataset. Each record represents an "
+        "individual demand observation."
+    )
 
 with overview2:
+
     category_count = (
         predictions[category_col].nunique()
         if category_col else "N/A"
     )
-    st.metric("Supply Categories", category_count)
+
+    st.metric(
+        "Supply Categories",
+        category_count
+    )
+
+    show_info(
+        "Number of different humanitarian supply categories, "
+        "such as Food & Nutrition, Shelter & NFI, Medical "
+        "and WASH."
+    )
 
 with overview3:
+
     sku_count = (
         predictions[sku_col].nunique()
         if sku_col else "N/A"
     )
-    st.metric("Items / SKUs", sku_count)
+
+    st.metric(
+        "Items / SKUs",
+        sku_count
+    )
+
+    show_info(
+        "Number of unique inventory items (Stock Keeping Units) "
+        "included in the dataset."
+    )
 
 
 st.divider()
@@ -405,30 +467,52 @@ st.divider()
 
 st.markdown("### Forecast Settings")
 
+show_info(
+    "Choose a forecasting model, supply category and "
+    "individual inventory item. Click Run Model to apply "
+    "your selections and view the results."
+)
+
 filter1, filter2, filter3, filter4 = st.columns(
     [1.2, 1.2, 1.2, 0.8]
 )
 
 with filter1:
+
     selected_model = st.selectbox(
         "Select Model",
-        MODEL_OPTIONS
+        MODEL_OPTIONS,
+        help=(
+            "Choose a forecasting algorithm. Different models "
+            "use different approaches to predict future demand."
+        )
     )
 
 with filter2:
+
     if category_col:
+
         categories = ["All Categories"] + sorted(
             predictions[category_col].dropna().unique().tolist()
         )
+
         selected_category = st.selectbox(
             "Supply Category",
-            categories
+            categories,
+            help=(
+                "Filter predictions and inventory alerts "
+                "by a particular humanitarian supply category."
+            )
         )
+
     else:
         selected_category = "All Categories"
 
+
 with filter3:
+
     if sku_col:
+
         available_skus = predictions.copy()
 
         if selected_category != "All Categories" and category_col:
@@ -442,17 +526,32 @@ with filter3:
 
         selected_sku = st.selectbox(
             "Item / SKU",
-            sku_options
+            sku_options,
+            help=(
+                "Select an individual inventory item to view "
+                "its demand predictions and shortage alerts."
+            )
         )
+
     else:
         selected_sku = "All SKUs"
 
+
 with filter4:
-    st.markdown("<div style='height:27px'></div>", unsafe_allow_html=True)
+
+    st.markdown(
+        "<div style='height:27px'></div>",
+        unsafe_allow_html=True
+    )
 
     run_model = st.button(
         "▶ Run Model",
-        use_container_width=True
+        use_container_width=True,
+        help=(
+            "Apply your selected model and filters to display "
+            "forecasting results, performance metrics, graphs "
+            "and inventory alerts."
+        )
     )
 
 
@@ -461,14 +560,20 @@ with filter4:
 # =========================================================
 
 if run_model:
+
     st.session_state["run_model"] = True
+
     st.session_state["selected_model"] = selected_model
     st.session_state["selected_category"] = selected_category
     st.session_state["selected_sku"] = selected_sku
 
 
 if "run_model" not in st.session_state:
-    st.info("Choose your model and filters, then click Run Model.")
+
+    st.info(
+        "Choose your model and filters, then click Run Model."
+    )
+
     st.stop()
 
 
@@ -484,37 +589,58 @@ selected_sku = st.session_state["selected_sku"]
 filtered = predictions.copy()
 
 if selected_category != "All Categories" and category_col:
+
     filtered = filtered[
         filtered[category_col] == selected_category
     ]
 
+
 if selected_sku != "All SKUs" and sku_col:
+
     filtered = filtered[
         filtered[sku_col] == selected_sku
     ]
 
+
 if selected_model not in filtered.columns:
-    st.error(f"The prediction column '{selected_model}' was not found.")
+
+    st.error(
+        f"The prediction column '{selected_model}' was not found."
+    )
+
     st.stop()
+
 
 if filtered.empty:
-    st.warning("No prediction records were found for these filters.")
+
+    st.warning(
+        "No prediction records were found for these filters."
+    )
+
     st.stop()
 
+
 filtered["demand_units"] = pd.to_numeric(
-    filtered["demand_units"], errors="coerce"
+    filtered["demand_units"],
+    errors="coerce"
 )
 
 filtered[selected_model] = pd.to_numeric(
-    filtered[selected_model], errors="coerce"
+    filtered[selected_model],
+    errors="coerce"
 )
 
 filtered = filtered.dropna(
     subset=["demand_units", selected_model]
 )
 
+
 if filtered.empty:
-    st.warning("There are no valid prediction values for this selection.")
+
+    st.warning(
+        "There are no valid prediction values for this selection."
+    )
+
     st.stop()
 
 
@@ -529,6 +655,7 @@ rmse_col = find_column(metrics, ["RMSE"])
 model_metrics = None
 
 if metric_model_col:
+
     matching_metrics = metrics[
         metrics[metric_model_col].apply(normalise)
         == normalise(selected_model)
@@ -537,26 +664,37 @@ if metric_model_col:
     if not matching_metrics.empty:
         model_metrics = matching_metrics.iloc[0]
 
+
 actual_total = filtered["demand_units"].sum()
 predicted_total = filtered[selected_model].sum()
 
 actual_values = filtered["demand_units"]
 predicted_values = filtered[selected_model]
 
+
 if model_metrics is not None and mae_col:
+
     mae_value = pd.to_numeric(
         pd.Series([model_metrics[mae_col]]),
         errors="coerce"
     ).iloc[0]
+
 else:
-    mae_value = (actual_values - predicted_values).abs().mean()
+
+    mae_value = (
+        actual_values - predicted_values
+    ).abs().mean()
+
 
 if model_metrics is not None and rmse_col:
+
     rmse_value = pd.to_numeric(
         pd.Series([model_metrics[rmse_col]]),
         errors="coerce"
     ).iloc[0]
+
 else:
+
     rmse_value = (
         ((actual_values - predicted_values) ** 2).mean()
     ) ** 0.5
@@ -572,21 +710,66 @@ st.markdown(f"### Results: {selected_model}")
 
 kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 
+
 with kpi1:
-    st.metric("MAE", format_number(mae_value))
+
+    st.metric(
+        "MAE",
+        format_number(mae_value)
+    )
+
+    show_info(
+        "Mean Absolute Error (MAE): Measures the average "
+        "absolute difference between actual demand and "
+        "predicted demand. Lower values indicate better "
+        "prediction accuracy."
+    )
+
 
 with kpi2:
-    st.metric("RMSE", format_number(rmse_value))
+
+    st.metric(
+        "RMSE",
+        format_number(rmse_value)
+    )
+
+    show_info(
+        "Root Mean Squared Error (RMSE): Measures prediction "
+        "errors while giving greater weight to larger errors. "
+        "Lower values indicate better prediction accuracy."
+    )
+
 
 with kpi3:
-    st.metric("Actual Demand", f"{actual_total:,.0f}")
+
+    st.metric(
+        "Actual Demand",
+        f"{actual_total:,.0f}"
+    )
+
+    show_info(
+        "Total recorded demand across the selected items "
+        "and weeks."
+    )
+
 
 with kpi4:
-    st.metric("Predicted Demand", f"{predicted_total:,.0f}")
+
+    st.metric(
+        "Predicted Demand",
+        f"{predicted_total:,.0f}"
+    )
+
+    show_info(
+        "Total demand predicted by the selected forecasting "
+        "model for the selected records."
+    )
+
 
 st.caption(
-    "MAE and RMSE measure prediction error. Lower values indicate better accuracy. "
-    "Demand totals reflect the selected filters."
+    "MAE and RMSE measure prediction error. Lower values "
+    "indicate better accuracy. Demand totals reflect "
+    "the selected filters."
 )
 
 
@@ -599,14 +782,27 @@ st.divider()
 chart_left, chart_right = st.columns([1.35, 1])
 
 
-# ---------------------------------------------------------
+# =========================================================
 # ACTUAL VS PREDICTED GRAPH
-# ---------------------------------------------------------
+# =========================================================
 
 with chart_left:
 
     st.markdown("### Actual vs Predicted Demand")
-    st.caption("Compare actual weekly demand with the selected model's predictions.")
+
+    show_info(
+        "This line graph compares actual weekly demand "
+        "with the demand predicted by the selected model. "
+        "The closer the two lines are, the more accurately "
+        "the model predicts demand. The horizontal axis "
+        "shows the week and the vertical axis shows demand "
+        "in units."
+    )
+
+    st.caption(
+        "Compare actual weekly demand with the selected "
+        "model's predictions."
+    )
 
     if week_col:
 
@@ -617,7 +813,9 @@ with chart_left:
             errors="coerce"
         )
 
-        chart_data = chart_data.dropna(subset=[week_col])
+        chart_data = chart_data.dropna(
+            subset=[week_col]
+        )
 
         if not chart_data.empty:
 
@@ -626,15 +824,20 @@ with chart_left:
                 as_index=False
             )[["demand_units", selected_model]].sum()
 
-            chart_data = chart_data.rename(columns={
-                week_col: "Week",
-                "demand_units": "Actual Demand",
-                selected_model: "Predicted Demand"
-            })
+            chart_data = chart_data.rename(
+                columns={
+                    week_col: "Week",
+                    "demand_units": "Actual Demand",
+                    selected_model: "Predicted Demand"
+                }
+            )
 
             chart_data = chart_data.melt(
                 id_vars="Week",
-                value_vars=["Actual Demand", "Predicted Demand"],
+                value_vars=[
+                    "Actual Demand",
+                    "Predicted Demand"
+                ],
                 var_name="Demand Type",
                 value_name="Units"
             )
@@ -658,8 +861,17 @@ with chart_left:
 
             line_chart.update_layout(
                 height=330,
-                margin=dict(l=10, r=10, t=15, b=10),
-                font=dict(family="Arial", color="#244D70", size=12),
+                margin=dict(
+                    l=10,
+                    r=10,
+                    t=15,
+                    b=10
+                ),
+                font=dict(
+                    family="Arial",
+                    color="#244D70",
+                    size=12
+                ),
                 legend_title_text="",
                 xaxis_title="Week",
                 yaxis_title="Demand (units)",
@@ -668,7 +880,10 @@ with chart_left:
                 paper_bgcolor="white"
             )
 
-            line_chart.update_xaxes(showgrid=False)
+            line_chart.update_xaxes(
+                showgrid=False
+            )
+
             line_chart.update_yaxes(
                 gridcolor="#E8EEF4",
                 zeroline=False
@@ -680,20 +895,38 @@ with chart_left:
             )
 
         else:
-            st.info("No valid weekly dates were found in the selected data.")
+
+            st.info(
+                "No valid weekly dates were found "
+                "in the selected data."
+            )
 
     else:
-        st.info("The week_end column was not found.")
+
+        st.info(
+            "The week_end column was not found."
+        )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # MODEL COMPARISON GRAPH
-# ---------------------------------------------------------
+# =========================================================
 
 with chart_right:
 
     st.markdown("### Model Comparison")
-    st.caption("Compare MAE across the available models. Lower is better.")
+
+    show_info(
+        "This horizontal bar chart compares the Mean "
+        "Absolute Error (MAE) of all forecasting models. "
+        "Each bar represents one model. Shorter bars "
+        "indicate lower prediction errors and better "
+        "accuracy based on MAE."
+    )
+
+    st.caption(
+        "Compare MAE across the available models. Lower is better."
+    )
 
     if metric_model_col and mae_col:
 
@@ -737,14 +970,25 @@ with chart_right:
 
         bar_chart.update_layout(
             height=330,
-            margin=dict(l=10, r=45, t=15, b=10),
-            font=dict(family="Arial", color="#244D70", size=12),
+            margin=dict(
+                l=10,
+                r=45,
+                t=15,
+                b=10
+            ),
+            font=dict(
+                family="Arial",
+                color="#244D70",
+                size=12
+            ),
             showlegend=False,
             xaxis_title="Mean Absolute Error (MAE)",
             yaxis_title="",
             plot_bgcolor="white",
             paper_bgcolor="white",
-            yaxis=dict(autorange="reversed")
+            yaxis=dict(
+                autorange="reversed"
+            )
         )
 
         bar_chart.update_xaxes(
@@ -762,7 +1006,11 @@ with chart_right:
         )
 
     else:
-        st.info("Could not identify the Model and MAE columns in the metrics file.")
+
+        st.info(
+            "Could not identify the Model and MAE "
+            "columns in the metrics file."
+        )
 
 
 # =========================================================
@@ -773,25 +1021,55 @@ st.divider()
 
 st.markdown("### Inventory Shortage Alerts")
 
+show_info("""
+These alerts identify potential inventory shortage risks
+based on forecasted demand.
+
+CRITICAL: Immediate attention required.
+
+HIGH: High inventory risk.
+
+WARNING: Inventory levels should be monitored.
+
+OK: Sufficient projected stock.
+
+These are forecast-based indicators and do not represent
+confirmed stockouts.
+""")
+
 st.caption(
-    "Forecast-based inventory risk indicators. These do not represent confirmed stockouts."
+    "Forecast-based inventory risk indicators. "
+    "These do not represent confirmed stockouts."
 )
 
 
 if alerts is None:
 
     st.info(
-        "No alert CSV was found. Add test_alerts_all_models.csv or "
-        "walkforward_alerts_all_models.csv inside your outputs folder."
+        "No alert CSV was found. Add "
+        "test_alerts_all_models.csv or "
+        "walkforward_alerts_all_models.csv "
+        "inside your outputs folder."
     )
 
 else:
 
     alert_data = alerts.copy()
 
-    alert_category_col = find_column(alert_data, ["category"])
-    alert_sku_col = find_column(alert_data, ["sku"])
-    alert_model_col = find_column(alert_data, ["model"])
+    alert_category_col = find_column(
+        alert_data,
+        ["category"]
+    )
+
+    alert_sku_col = find_column(
+        alert_data,
+        ["sku"]
+    )
+
+    alert_model_col = find_column(
+        alert_data,
+        ["model"]
+    )
 
     severity_col = find_column(
         alert_data,
@@ -804,24 +1082,34 @@ else:
         ]
     )
 
-    # Filter by category
+
+    # FILTER BY CATEGORY
+
     if selected_category != "All Categories" and alert_category_col:
+
         alert_data = alert_data[
             alert_data[alert_category_col] == selected_category
         ]
 
-    # Filter by SKU
+
+    # FILTER BY SKU
+
     if selected_sku != "All SKUs" and alert_sku_col:
+
         alert_data = alert_data[
             alert_data[alert_sku_col] == selected_sku
         ]
 
-    # Filter by model, if model column is available
+
+    # FILTER BY MODEL
+
     if alert_model_col:
+
         alert_data = alert_data[
             alert_data[alert_model_col].apply(normalise)
             == normalise(selected_model)
         ]
+
 
     if severity_col and not alert_data.empty:
 
@@ -845,23 +1133,48 @@ else:
             alert_data["Alert Category"] == "OK"
         ).sum()
 
-        # Four fully coloured cards
+
+        # FOUR ALERT CARDS
+
         alert1, alert2, alert3, alert4 = st.columns(4)
 
         with alert1:
-            show_alert_card("CRITICAL", int(critical_count))
+            show_alert_card(
+                "CRITICAL",
+                int(critical_count)
+            )
 
         with alert2:
-            show_alert_card("HIGH", int(high_count))
+            show_alert_card(
+                "HIGH",
+                int(high_count)
+            )
 
         with alert3:
-            show_alert_card("WARNING", int(warning_count))
+            show_alert_card(
+                "WARNING",
+                int(warning_count)
+            )
 
         with alert4:
-            show_alert_card("OK", int(ok_count))
+            show_alert_card(
+                "OK",
+                int(ok_count)
+            )
 
-        # Alert details table
-        with st.expander("View shortage alert details", expanded=False):
+
+        # ALERT DETAILS TABLE
+
+        with st.expander(
+            "View shortage alert details",
+            expanded=False
+        ):
+
+            show_info(
+                "This table displays the individual shortage "
+                "alert records for the selected model, category "
+                "and SKU. You can download the records as a CSV."
+            )
 
             st.dataframe(
                 alert_data.drop(
@@ -874,19 +1187,26 @@ else:
 
             st.download_button(
                 "Download Alert Results",
-                data=alert_data.to_csv(index=False).encode("utf-8"),
+                data=alert_data.to_csv(
+                    index=False
+                ).encode("utf-8"),
                 file_name="shortage_alert_results.csv",
                 mime="text/csv"
             )
 
+
     elif alert_data.empty:
 
-        st.info("No alert records match the selected filters.")
+        st.info(
+            "No alert records match the selected filters."
+        )
+
 
     else:
 
         st.warning(
-            "An alert file was found, but its severity column could not be identified."
+            "An alert file was found, but its severity "
+            "column could not be identified."
         )
 
         st.dataframe(
@@ -902,12 +1222,28 @@ else:
 
 st.divider()
 
-with st.expander("View detailed prediction results", expanded=False):
+st.markdown("### Detailed Prediction Results")
+
+show_info(
+    "View individual prediction records, including actual "
+    "demand, predicted demand, prediction error and absolute "
+    "error. Prediction Error shows the difference between "
+    "predicted and actual demand. Absolute Error shows the "
+    "size of that difference regardless of direction. "
+    "You can also download the results as a CSV file."
+)
+
+
+with st.expander(
+    "View detailed prediction results",
+    expanded=False
+):
 
     result_table = filtered.copy()
 
     result_table["Prediction Error"] = (
-        result_table[selected_model] - result_table["demand_units"]
+        result_table[selected_model]
+        - result_table["demand_units"]
     )
 
     result_table["Absolute Error"] = (
@@ -922,7 +1258,9 @@ with st.expander("View detailed prediction results", expanded=False):
 
     st.download_button(
         "Download Prediction Results",
-        data=result_table.to_csv(index=False).encode("utf-8"),
+        data=result_table.to_csv(
+            index=False
+        ).encode("utf-8"),
         file_name="demand_predictions.csv",
         mime="text/csv"
     )
@@ -939,6 +1277,8 @@ st.markdown("""
     color:#8293A5;
     font-size:11px;
 ">
-    Humanitarian Warehouse Demand Forecasting | CSCI218 Foundations of AI
+    Humanitarian Warehouse Demand Forecasting |
+    CSCI218 Foundations of AI
 </p>
 """, unsafe_allow_html=True)
+  
