@@ -1,0 +1,9 @@
+Model,checks,real_stockouts,CRITICAL,HIGH,WARNING,OK,false_alarms_crit_high
+Naive,434,0,1,11,35,387,12
+Moving average,434,0,2,11,30,391,13
+Linear regression,434,0,1,3,29,401,4
+Random Forest,434,0,0,4,31,399,4
+Gradient boosting,434,0,0,5,29,400,5
+Decision Tree (P2),434,0,1,10,40,383,11
+Random Forest (P2),434,0,1,3,32,398,4
+Neural network (P3),434,0,0,3,21,410,3

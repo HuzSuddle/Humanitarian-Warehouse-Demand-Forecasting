@@ -1,0 +1,8 @@
+Model,MAE,MAE std,RMSE,RMSE std,MAE vs naive,RMSE vs naive
+Random Forest,19.79,0.08,30.92,0.25,21.5%,21.6%
+Neural network (150 epochs),22.08,0.93,31.57,1.47,12.4%,20.0%
+Decision Tree,22.93,0.12,34.8,0.17,9.0%,11.8%
+Linear regression,24.11,0.0,35.07,0.0,4.3%,11.1%
+Naive,25.2,0.0,39.47,0.0,0.0%,0.0%
+Moving average,25.94,0.0,49.31,0.0,-2.9%,-24.9%
+Neural network,26.17,1.21,37.87,1.8,-3.9%,4.1%

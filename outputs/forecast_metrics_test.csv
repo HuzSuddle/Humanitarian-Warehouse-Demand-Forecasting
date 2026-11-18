@@ -1,0 +1,9 @@
+Model,MAE,RMSE
+Random Forest (P2),19.88,31.16
+Random Forest,19.91,30.63
+Gradient boosting,21.26,32.33
+Decision Tree (P2),22.82,34.67
+Linear regression,23.68,34.17
+Naive,25.2,39.47
+Neural network (P3),25.6,36.43
+Moving average,25.94,49.31

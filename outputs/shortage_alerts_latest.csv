@@ -1,0 +1,15 @@
+week_end,sku,item_name,stock_start_units,on_order_start_units,demand_units,stockout_this_week,pred_demand,projected_stock_end,cover_ratio,weeks_of_cover,shortfall_units,alert
+2026-10-25,SKU-402,Jerrycan bundle,171.0,0.0,128,0,137.3,33.7,0.25,1.25,0.0,HIGH
+2026-10-25,SKU-101,Family food parcel,566.0,0.0,310,0,412.4,153.6,0.37,1.37,0.0,WARNING
+2026-10-25,SKU-102,High-energy biscuits,419.0,0.0,297,0,304.3,114.7,0.38,1.38,0.0,WARNING
+2026-10-25,SKU-303,"Medicines (essential, box)",155.0,0.0,126,0,111.2,43.8,0.39,1.39,0.0,WARNING
+2026-10-25,SKU-205,Kitchen set,128.0,0.0,70,0,79.1,48.9,0.62,1.62,0.0,OK
+2026-10-25,SKU-203,Thermal blankets (bale of 10),220.0,254.0,331,0,291.0,183.0,0.63,1.63,0.0,OK
+2026-10-25,SKU-201,Family tent,42.0,90.0,87,0,76.7,55.3,0.72,1.72,0.0,OK
+2026-10-25,SKU-301,First aid kit,299.0,0.0,142,0,168.4,130.6,0.78,1.78,0.0,OK
+2026-10-25,SKU-202,Tarpaulin,131.0,330.0,310,0,258.2,202.8,0.79,1.79,0.0,OK
+2026-10-25,SKU-103,Rice 25 kg,318.0,322.0,249,0,303.5,336.5,1.11,2.11,0.0,OK
+2026-10-25,SKU-204,Hygiene kit,202.0,238.0,274,0,208.5,231.5,1.11,2.11,0.0,OK
+2026-10-25,SKU-104,Ready-to-use therapeutic food,162.0,191.0,127,0,136.0,217.0,1.6,2.6,0.0,OK
+2026-10-25,SKU-401,Water purification tablets,93.0,179.0,94,0,97.6,174.4,1.79,2.79,0.0,OK
+2026-10-25,SKU-302,Trauma kit,40.0,124.0,47,0,50.3,113.7,2.26,3.26,0.0,OK
