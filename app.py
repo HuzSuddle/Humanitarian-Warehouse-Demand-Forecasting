@@ -278,6 +278,19 @@ hr {
     border-color: #DCE5EE !important;
 }
 
+/* Force primary buttons to have a solid blue background */
+button[data-testid="stBaseButton-primary"] {
+    background-color: #2878BE !important;
+    color: #FFFFFF !important;
+    border: 1px solid #2878BE !important;
+    opacity: 1 !important;
+}
+
+button[data-testid="stBaseButton-primary"]:hover {
+    background-color: #1F639F !important;
+    border-color: #1F639F !important;
+    color: #FFFFFF !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -566,7 +579,7 @@ with filter4:
     )
 
     run_model = st.button(
-        "▶ Run Model",
+        "▶ Run Model", type="primary",
         use_container_width=True,
         help=(
             "Apply your selected model and filters to display "
