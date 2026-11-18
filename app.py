@@ -49,7 +49,15 @@ ALERT_COLORS = {
 # CUSTOM DESIGN
 # --------------------------------------------------
 
-# Coloured alert cards 
+
+
+# Coloured alert cards (no emojis)
+
+critical_count = alert_data[severity_col].str.contains("CRITICAL", na=False).sum()
+high_count = alert_data[severity_col].str.contains("HIGH", na=False).sum()
+warning_count = alert_data[severity_col].str.contains("WARNING", na=False).sum()
+ok_count = alert_data[severity_col].str.fullmatch("OK", na=False).sum()
+
 st.markdown("""
 <style>
 .alert-card {
@@ -57,14 +65,13 @@ st.markdown("""
     border-radius: 9px;
     text-align: left;
     min-height: 83px;
-    color: #263746;
 }
-.alert-card .alert-name {
+.alert-name {
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.4px;
 }
-.alert-card .alert-count {
+.alert-count {
     font-size: 27px;
     font-weight: 750;
     margin-top: 5px;
@@ -84,11 +91,13 @@ alert_cards = [
 for column, name, count, background, text_colour in alert_cards:
     with column:
         st.markdown(f"""
-        <div class="alert-card" style="background:{background}; color:{text_colour};">
+        <div class="alert-card"
+             style="background:{background}; color:{text_colour};">
             <div class="alert-name">{name}</div>
             <div class="alert-count">{count}</div>
         </div>
         """, unsafe_allow_html=True)
+
 
 
 # --------------------------------------------------
