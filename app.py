@@ -480,7 +480,7 @@ with kpi4:
 
 section_title("Demand Forecast Analysis")
 
-chart1, chart2 = st.columns(2)
+chart1, chart2 = st.columns([1, 1], gap="large")
 
 
 # Actual vs Predicted
@@ -541,7 +541,7 @@ with chart1:
             )
 
             fig.update_layout(
-                height=350,
+                height=430,
                 margin=dict(l=10, r=10, t=20, b=10),
                 legend_title_text="",
                 xaxis_title="Week",
@@ -596,14 +596,14 @@ with chart2:
                 )
 
                 fig.update_layout(
-                    height=350,
+                    height=430,
                     showlegend=False,
                     margin=dict(l=10, r=10, t=20, b=10),
                     xaxis_title="Model",
                     yaxis_title="Mean Absolute Error"
                 )
 
-                fig.update_xaxes(tickangle=-25)
+                fig.update_xaxes(     tickangle=-30,     tickfont=dict(size=10),     automargin=True )
 
                 st.plotly_chart(
                     fig,
