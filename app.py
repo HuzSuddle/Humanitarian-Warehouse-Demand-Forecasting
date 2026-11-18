@@ -78,6 +78,22 @@ st.markdown("""
     background-color: #F7F9FC !important;
 }
 
+/* Keep Run Model button blue */
+.stButton > button {
+    background-color: #2878BE !important;
+    color: white !important;
+    border: 1px solid #2878BE !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+
+/* Slightly darker blue when hovering */
+.stButton > button:hover {
+    background-color: #1F639F !important;
+    color: white !important;
+    border-color: #1F639F !important;
+}
+
 [data-testid="stAppViewContainer"] {
     background-color: #F7F9FC !important;
 }
