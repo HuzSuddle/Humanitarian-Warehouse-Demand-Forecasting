@@ -67,196 +67,276 @@ ALERT_STYLES = {
 }
 
 
+
 # =========================================================
 # CUSTOM CSS
 # =========================================================
 
 st.markdown("""
-
 <style>
-    /* GENERAL PAGE */
-    .stApp {
-        background-color: #F7F9FC;
-    }
 
-    .block-container {
-        padding-top: 1.2rem;
-        padding-bottom: 1rem;
-        max-width: 1450px;
-    }
+/* =====================================================
+   GENERAL PAGE
+===================================================== */
 
-    /* HEADER */
-    .dashboard-header {
-        background: linear-gradient(110deg, #DCEEFF, #EFF7FF);
-        padding: 20px 25px;
-        border-radius: 13px;
-        border: 1px solid #D1E5F8;
-        margin-bottom: 16px;
-    }
+.stApp {
+    background-color: #F7F9FC;
+}
 
-    .dashboard-header h1 {
-        color: #174A78 !important;
-        font-size: 27px;
-        margin: 0;
-    }
+.block-container {
+    padding-top: 1.2rem;
+    padding-bottom: 1rem;
+    max-width: 1450px;
+}
 
-    .dashboard-header p {
-        color: #54718D !important;
-        font-size: 13px;
-        margin: 5px 0 0 0;
-    }
+/* =====================================================
+   HEADER
+===================================================== */
 
-    /* BUTTON */
-    div.stButton > button {
-        background-color: #2878BE;
-        color: white !important;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        min-height: 42px;
-    }
+.dashboard-header {
+    background: linear-gradient(110deg, #DCEEFF, #EFF7FF);
+    padding: 20px 25px;
+    border-radius: 13px;
+    border: 1px solid #D1E5F8;
+    margin-bottom: 16px;
+}
 
-    div.stButton > button:hover {
-        background-color: #185F9E;
-        color: white !important;
-    }
+.dashboard-header h1 {
+    color: #174A78 !important;
+    font-size: 27px;
+    margin: 0;
+}
 
-    /* METRIC CARDS */
-    div[data-testid="stMetric"] {
-        background: white;
-        border: 1px solid #E1EAF3;
-        padding: 12px 15px;
-        border-radius: 10px;
-    }
+.dashboard-header p {
+    color: #54718D !important;
+    font-size: 13px;
+    margin: 5px 0 0 0;
+}
 
-    div[data-testid="stMetricLabel"] {
-        color: #60758A !important;
-        font-size: 12px;
-    }
+/* =====================================================
+   BUTTON
+===================================================== */
 
-    div[data-testid="stMetricValue"] {
-        color: #174A78 !important;
-        font-size: 23px;
-    }
+div.stButton > button {
+    background-color: #2878BE;
+    color: white !important;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    min-height: 42px;
+}
 
-    /* HEADINGS */
-    h1, h2, h3 {
-        color: #244D70;
-    }
+div.stButton > button:hover {
+    background-color: #185F9E;
+    color: white !important;
+    border: none;
+}
 
-    /* ALERT CARDS */
-    .alert-card {
-        padding: 15px 13px;
-        border-radius: 11px;
-        border: 1px solid;
-        min-height: 105px;
-        margin-bottom: 5px;
-    }
+/* =====================================================
+   KPI CARDS
+===================================================== */
 
-    .alert-card .alert-label {
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-    }
+div[data-testid="stMetric"] {
+    background: white;
+    border: 1px solid #E1EAF3;
+    padding: 12px 15px;
+    border-radius: 10px;
+}
 
-    .alert-card .alert-number {
-        font-size: 29px;
-        font-weight: 750;
-        line-height: 1.4;
-        margin-top: 3px;
-    }
+div[data-testid="stMetricLabel"] {
+    color: #60758A !important;
+    font-size: 12px;
+}
 
-    .alert-card .alert-description {
-        font-size: 11px;
-        margin-top: 2px;
-    }
+div[data-testid="stMetricValue"] {
+    color: #174A78 !important;
+    font-size: 23px;
+}
 
-    hr {
-        margin-top: 12px;
-        margin-bottom: 12px;
-    }
+/* =====================================================
+   HEADINGS
+===================================================== */
 
-    /* ===================================
-       DARK MODE
-       =================================== */
+h1, h2, h3, h4 {
+    color: #244D70;
+}
 
-    [data-theme="dark"] .stApp {
-        background-color: #111827;
-    }
+/* =====================================================
+   ALERT CARDS
+===================================================== */
 
-    [data-theme="dark"] .dashboard-header {
-        background: linear-gradient(110deg, #DCEEFF, #EFF7FF);
-        border-color: #A9CBE8;
-    }
+.alert-card {
+    padding: 15px 13px;
+    border-radius: 11px;
+    border: 1px solid;
+    min-height: 105px;
+    margin-bottom: 5px;
+}
 
-    [data-theme="dark"] .dashboard-header h1 {
-        color: #174A78 !important;
-    }
+.alert-card .alert-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
 
-    [data-theme="dark"] .dashboard-header p {
-        color: #54718D !important;
-    }
+.alert-card .alert-number {
+    font-size: 29px;
+    font-weight: 750;
+    line-height: 1.4;
+    margin-top: 3px;
+}
 
-    [data-theme="dark"] h1,
-    [data-theme="dark"] h2,
-    [data-theme="dark"] h3,
-    [data-theme="dark"] h4 {
-        color: #A9D3F5 !important;
-    }
+.alert-card .alert-description {
+    font-size: 11px;
+    margin-top: 2px;
+}
 
-    [data-theme="dark"] p,
-    [data-theme="dark"] label,
-    [data-theme="dark"] .stMarkdown,
-    [data-theme="dark"] .stCaption {
-        color: #E2E8F0;
-    }
+/* =====================================================
+   DARK MODE
+===================================================== */
 
-    /* Keep KPI cards bright for contrast */
-    [data-theme="dark"] div[data-testid="stMetric"] {
-        background: #F8FBFF;
-        border-color: #B9D3EA;
-    }
+/* Main background */
+html[data-theme="dark"] .stApp {
+    background-color: #111827;
+}
 
-    [data-theme="dark"] div[data-testid="stMetricLabel"] {
-        color: #60758A !important;
-    }
+/* General text */
+html[data-theme="dark"] .stMarkdown,
+html[data-theme="dark"] .stMarkdown p,
+html[data-theme="dark"] .stMarkdown span,
+html[data-theme="dark"] .stMarkdown li,
+html[data-theme="dark"] .stText,
+html[data-theme="dark"] .stCaption,
+html[data-theme="dark"] [data-testid="stCaptionContainer"],
+html[data-theme="dark"] [data-testid="stMarkdownContainer"] {
+    color: #E2E8F0 !important;
+}
 
-    [data-theme="dark"] div[data-testid="stMetricValue"] {
-        color: #174A78 !important;
-    }
+/* All headings */
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5 {
+    color: #A9D3F5 !important;
+}
 
-    /* Input labels */
-    [data-theme="dark"] [data-testid="stWidgetLabel"] {
-        color: #E2E8F0 !important;
-    }
+/* Header remains light blue */
+html[data-theme="dark"] .dashboard-header {
+    background: linear-gradient(110deg, #DCEEFF, #EFF7FF);
+    border-color: #A9CBE8;
+}
 
-    /* Expanders */
-    [data-theme="dark"] [data-testid="stExpander"] {
-        border-color: #475569;
-    }
+html[data-theme="dark"] .dashboard-header h1 {
+    color: #174A78 !important;
+}
 
-    [data-theme="dark"] [data-testid="stExpander"] summary {
-        color: #E2E8F0;
-    }
+html[data-theme="dark"] .dashboard-header p {
+    color: #54718D !important;
+}
 
-    /* Tables */
-    [data-theme="dark"] [data-testid="stDataFrame"] {
-        border: 1px solid #475569;
-        border-radius: 8px;
-    }
+/* Widget labels:
+   Prediction Records, Forecast Settings,
+   Select Model, Supply Category, etc. */
+html[data-theme="dark"] [data-testid="stWidgetLabel"],
+html[data-theme="dark"] [data-testid="stWidgetLabel"] p,
+html[data-theme="dark"] [data-testid="stWidgetLabel"] label,
+html[data-theme="dark"] .stSelectbox label,
+html[data-theme="dark"] .stMultiSelect label,
+html[data-theme="dark"] .stSlider label,
+html[data-theme="dark"] .stCheckbox label,
+html[data-theme="dark"] .stRadio label,
+html[data-theme="dark"] .stDateInput label,
+html[data-theme="dark"] .stTextInput label {
+    color: #E2E8F0 !important;
+}
 
-    /* Captions */
-    [data-theme="dark"] .stCaption {
-        color: #B8C7D8 !important;
-    }
+/* Metric cards remain white for contrast */
+html[data-theme="dark"] div[data-testid="stMetric"] {
+    background: #F8FBFF !important;
+    border: 1px solid #B9D3EA;
+}
 
-    /* Dividers */
-    [data-theme="dark"] hr {
-        border-color: #475569;
-    }
+html[data-theme="dark"] div[data-testid="stMetricLabel"],
+html[data-theme="dark"] div[data-testid="stMetricLabel"] p {
+    color: #60758A !important;
+}
+
+html[data-theme="dark"] div[data-testid="stMetricValue"] {
+    color: #174A78 !important;
+}
+
+/* Dropdown text */
+html[data-theme="dark"] [data-baseweb="select"] > div {
+    background-color: #263548;
+    border-color: #52657A;
+    color: #F1F5F9;
+}
+
+html[data-theme="dark"] [data-baseweb="select"] span {
+    color: #F1F5F9 !important;
+}
+
+/* Dropdown options */
+html[data-theme="dark"] [role="listbox"],
+html[data-theme="dark"] [role="option"] {
+    background-color: #263548;
+    color: #F1F5F9;
+}
+
+/* Input fields */
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea {
+    background-color: #263548 !important;
+    color: #F1F5F9 !important;
+    border-color: #52657A !important;
+}
+
+/* Captions and explanatory text */
+html[data-theme="dark"] .stCaption,
+html[data-theme="dark"] [data-testid="stCaptionContainer"] p {
+    color: #B8C7D8 !important;
+}
+
+/* Expanders */
+html[data-theme="dark"] [data-testid="stExpander"] {
+    border-color: #52657A;
+}
+
+html[data-theme="dark"] [data-testid="stExpander"] summary,
+html[data-theme="dark"] [data-testid="stExpander"] summary p {
+    color: #E2E8F0 !important;
+}
+
+/* Tables */
+html[data-theme="dark"] [data-testid="stDataFrame"] {
+    border: 1px solid #475569;
+    border-radius: 8px;
+}
+
+/* Alerts and information boxes */
+html[data-theme="dark"] [data-testid="stAlert"] p {
+    color: inherit !important;
+}
+
+/* Tabs */
+html[data-theme="dark"] [data-testid="stTab"] {
+    color: #E2E8F0 !important;
+}
+
+/* Dividers */
+hr {
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+html[data-theme="dark"] hr {
+    border-color: #475569;
+}
+
 </style>
-
 """, unsafe_allow_html=True)
+
 
 
 # =========================================================
