@@ -68,17 +68,15 @@ ALERT_STYLES = {
 
 
 
+
 # =========================================================
-# CUSTOM CSS
+# CUSTOM CSS - FIXED COLOURS FOR LIGHT AND DARK MODE
 # =========================================================
 
 st.markdown("""
 <style>
 
-/* =====================================================
-   GENERAL PAGE
-===================================================== */
-
+/* GENERAL PAGE */
 .stApp {
     background-color: #F7F9FC;
 }
@@ -89,10 +87,32 @@ st.markdown("""
     max-width: 1450px;
 }
 
-/* =====================================================
-   HEADER
-===================================================== */
+/* ALL MAIN HEADINGS */
+h1, h2, h3, h4, h5, h6 {
+    color: #244D70 !important;
+}
 
+/* MARKDOWN TEXT */
+.stMarkdown p,
+.stMarkdown li,
+.stMarkdown label {
+    color: #344F68 !important;
+}
+
+/* SECTION HEADINGS */
+.stMarkdown h2,
+.stMarkdown h3,
+.stMarkdown h4 {
+    color: #244D70 !important;
+}
+
+/* CAPTIONS */
+.stCaption,
+[data-testid="stCaptionContainer"] p {
+    color: #647C92 !important;
+}
+
+/* HEADER */
 .dashboard-header {
     background: linear-gradient(110deg, #DCEEFF, #EFF7FF);
     padding: 20px 25px;
@@ -113,58 +133,54 @@ st.markdown("""
     margin: 5px 0 0 0;
 }
 
-/* =====================================================
-   BUTTON
-===================================================== */
-
+/* BUTTON */
 div.stButton > button {
-    background-color: #2878BE;
-    color: white !important;
-    border: none;
+    background-color: #2878BE !important;
+    color: #FFFFFF !important;
+    border: none !important;
     border-radius: 8px;
     font-weight: 600;
     min-height: 42px;
 }
 
 div.stButton > button:hover {
-    background-color: #185F9E;
-    color: white !important;
-    border: none;
+    background-color: #185F9E !important;
+    color: #FFFFFF !important;
 }
 
-/* =====================================================
-   KPI CARDS
-===================================================== */
-
+/* METRIC CARDS */
 div[data-testid="stMetric"] {
-    background: white;
+    background: #FFFFFF !important;
     border: 1px solid #E1EAF3;
     padding: 12px 15px;
     border-radius: 10px;
 }
 
-div[data-testid="stMetricLabel"] {
+div[data-testid="stMetricLabel"],
+div[data-testid="stMetricLabel"] p {
     color: #60758A !important;
     font-size: 12px;
 }
 
-div[data-testid="stMetricValue"] {
+div[data-testid="stMetricValue"],
+div[data-testid="stMetricValue"] div {
     color: #174A78 !important;
     font-size: 23px;
 }
 
-/* =====================================================
-   HEADINGS
-===================================================== */
-
-h1, h2, h3, h4 {
-    color: #244D70;
+/* SELECT BOX LABELS */
+[data-testid="stWidgetLabel"],
+[data-testid="stWidgetLabel"] p {
+    color: #344F68 !important;
 }
 
-/* =====================================================
-   ALERT CARDS
-===================================================== */
+/* SELECT BOX TEXT */
+div[data-baseweb="select"] *,
+div[data-baseweb="input"] input {
+    color: #263F55 !important;
+}
 
+/* ALERT CARDS */
 .alert-card {
     padding: 15px 13px;
     border-radius: 11px;
@@ -191,151 +207,27 @@ h1, h2, h3, h4 {
     margin-top: 2px;
 }
 
-/* =====================================================
-   DARK MODE
-===================================================== */
-
-/* Main background */
-html[data-theme="dark"] .stApp {
-    background-color: #111827;
+/* EXPANDERS */
+[data-testid="stExpander"] summary,
+[data-testid="stExpander"] summary p {
+    color: #244D70 !important;
 }
 
-/* General text */
-html[data-theme="dark"] .stMarkdown,
-html[data-theme="dark"] .stMarkdown p,
-html[data-theme="dark"] .stMarkdown span,
-html[data-theme="dark"] .stMarkdown li,
-html[data-theme="dark"] .stText,
-html[data-theme="dark"] .stCaption,
-html[data-theme="dark"] [data-testid="stCaptionContainer"],
-html[data-theme="dark"] [data-testid="stMarkdownContainer"] {
-    color: #E2E8F0 !important;
+/* INFO / WARNING MESSAGES */
+[data-testid="stAlert"] p {
+    color: #344F68 !important;
 }
 
-/* All headings */
-html[data-theme="dark"] h1,
-html[data-theme="dark"] h2,
-html[data-theme="dark"] h3,
-html[data-theme="dark"] h4,
-html[data-theme="dark"] h5 {
-    color: #A9D3F5 !important;
-}
-
-/* Header remains light blue */
-html[data-theme="dark"] .dashboard-header {
-    background: linear-gradient(110deg, #DCEEFF, #EFF7FF);
-    border-color: #A9CBE8;
-}
-
-html[data-theme="dark"] .dashboard-header h1 {
-    color: #174A78 !important;
-}
-
-html[data-theme="dark"] .dashboard-header p {
-    color: #54718D !important;
-}
-
-/* Widget labels:
-   Prediction Records, Forecast Settings,
-   Select Model, Supply Category, etc. */
-html[data-theme="dark"] [data-testid="stWidgetLabel"],
-html[data-theme="dark"] [data-testid="stWidgetLabel"] p,
-html[data-theme="dark"] [data-testid="stWidgetLabel"] label,
-html[data-theme="dark"] .stSelectbox label,
-html[data-theme="dark"] .stMultiSelect label,
-html[data-theme="dark"] .stSlider label,
-html[data-theme="dark"] .stCheckbox label,
-html[data-theme="dark"] .stRadio label,
-html[data-theme="dark"] .stDateInput label,
-html[data-theme="dark"] .stTextInput label {
-    color: #E2E8F0 !important;
-}
-
-/* Metric cards remain white for contrast */
-html[data-theme="dark"] div[data-testid="stMetric"] {
-    background: #F8FBFF !important;
-    border: 1px solid #B9D3EA;
-}
-
-html[data-theme="dark"] div[data-testid="stMetricLabel"],
-html[data-theme="dark"] div[data-testid="stMetricLabel"] p {
-    color: #60758A !important;
-}
-
-html[data-theme="dark"] div[data-testid="stMetricValue"] {
-    color: #174A78 !important;
-}
-
-/* Dropdown text */
-html[data-theme="dark"] [data-baseweb="select"] > div {
-    background-color: #263548;
-    border-color: #52657A;
-    color: #F1F5F9;
-}
-
-html[data-theme="dark"] [data-baseweb="select"] span {
-    color: #F1F5F9 !important;
-}
-
-/* Dropdown options */
-html[data-theme="dark"] [role="listbox"],
-html[data-theme="dark"] [role="option"] {
-    background-color: #263548;
-    color: #F1F5F9;
-}
-
-/* Input fields */
-html[data-theme="dark"] input,
-html[data-theme="dark"] textarea {
-    background-color: #263548 !important;
-    color: #F1F5F9 !important;
-    border-color: #52657A !important;
-}
-
-/* Captions and explanatory text */
-html[data-theme="dark"] .stCaption,
-html[data-theme="dark"] [data-testid="stCaptionContainer"] p {
-    color: #B8C7D8 !important;
-}
-
-/* Expanders */
-html[data-theme="dark"] [data-testid="stExpander"] {
-    border-color: #52657A;
-}
-
-html[data-theme="dark"] [data-testid="stExpander"] summary,
-html[data-theme="dark"] [data-testid="stExpander"] summary p {
-    color: #E2E8F0 !important;
-}
-
-/* Tables */
-html[data-theme="dark"] [data-testid="stDataFrame"] {
-    border: 1px solid #475569;
-    border-radius: 8px;
-}
-
-/* Alerts and information boxes */
-html[data-theme="dark"] [data-testid="stAlert"] p {
-    color: inherit !important;
-}
-
-/* Tabs */
-html[data-theme="dark"] [data-testid="stTab"] {
-    color: #E2E8F0 !important;
-}
-
-/* Dividers */
+/* DIVIDERS */
 hr {
     margin-top: 12px;
     margin-bottom: 12px;
-}
-
-html[data-theme="dark"] hr {
-    border-color: #475569;
+    border-color: #DCE5EE !important;
 }
 
 </style>
 """, unsafe_allow_html=True)
+
 
 
 
