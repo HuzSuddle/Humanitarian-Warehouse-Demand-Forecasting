@@ -78,19 +78,24 @@ st.markdown("""
     background-color: #F7F9FC !important;
 }
 
-/* Keep Run Model button blue */
-.stButton > button {
+/* Run Model button - solid blue box */
+.stButton > button,
+.stButton > button[kind="secondary"],
+.stButton > button[kind="primary"] {
+    background: #2878BE !important;
     background-color: #2878BE !important;
-    color: white !important;
-    border: 1px solid #2878BE !important;
+    color: #FFFFFF !important;
+    border: 2px solid #2878BE !important;
     border-radius: 8px !important;
     font-weight: 600 !important;
+    box-shadow: none !important;
 }
 
-/* Slightly darker blue when hovering */
+/* Hover */
 .stButton > button:hover {
+    background: #1F639F !important;
     background-color: #1F639F !important;
-    color: white !important;
+    color: #FFFFFF !important;
     border-color: #1F639F !important;
 }
 
