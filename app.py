@@ -654,11 +654,13 @@ else:
         {"sku"}
     )
 
+
     # Filter alerts by selected model when possible
 
     if alert_model_col:
         matching_model = alert_data[
-            alert_model_col].astype(str).str.lower() == selected_model.lower()
+            alert_data[alert_model_col].astype(str).str.lower()
+            == selected_model.lower()
         ]
 
         if not matching_model.empty:
