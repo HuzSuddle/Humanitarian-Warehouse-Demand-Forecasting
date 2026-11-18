@@ -69,8 +69,9 @@ ALERT_STYLES = {
 
 
 
+
 # =========================================================
-# CUSTOM CSS - FIXED COLOURS FOR LIGHT AND DARK MODE
+# CUSTOM CSS 
 # =========================================================
 
 st.markdown("""
@@ -78,7 +79,11 @@ st.markdown("""
 
 /* GENERAL PAGE */
 .stApp {
-    background-color: #F7F9FC;
+    background-color: #F7F9FC !important;
+}
+
+[data-testid="stAppViewContainer"] {
+    background-color: #F7F9FC !important;
 }
 
 .block-container {
@@ -87,23 +92,16 @@ st.markdown("""
     max-width: 1450px;
 }
 
-/* ALL MAIN HEADINGS */
+/* HEADINGS */
 h1, h2, h3, h4, h5, h6 {
     color: #244D70 !important;
 }
 
-/* MARKDOWN TEXT */
+/* GENERAL TEXT */
 .stMarkdown p,
 .stMarkdown li,
 .stMarkdown label {
     color: #344F68 !important;
-}
-
-/* SECTION HEADINGS */
-.stMarkdown h2,
-.stMarkdown h3,
-.stMarkdown h4 {
-    color: #244D70 !important;
 }
 
 /* CAPTIONS */
@@ -133,10 +131,10 @@ h1, h2, h3, h4, h5, h6 {
     margin: 5px 0 0 0;
 }
 
-/* BUTTON */
+/* BUTTONS */
 div.stButton > button {
     background-color: #2878BE !important;
-    color: #FFFFFF !important;
+    color: white !important;
     border: none !important;
     border-radius: 8px;
     font-weight: 600;
@@ -145,13 +143,13 @@ div.stButton > button {
 
 div.stButton > button:hover {
     background-color: #185F9E !important;
-    color: #FFFFFF !important;
+    color: white !important;
 }
 
 /* METRIC CARDS */
 div[data-testid="stMetric"] {
     background: #FFFFFF !important;
-    border: 1px solid #E1EAF3;
+    border: 1px solid #E1EAF3 !important;
     padding: 12px 15px;
     border-radius: 10px;
 }
@@ -159,22 +157,23 @@ div[data-testid="stMetric"] {
 div[data-testid="stMetricLabel"],
 div[data-testid="stMetricLabel"] p {
     color: #60758A !important;
-    font-size: 12px;
 }
 
 div[data-testid="stMetricValue"],
 div[data-testid="stMetricValue"] div {
     color: #174A78 !important;
-    font-size: 23px;
 }
 
-/* SELECT BOX LABELS */
+/* SELECT BOXES */
 [data-testid="stWidgetLabel"],
 [data-testid="stWidgetLabel"] p {
     color: #344F68 !important;
 }
 
-/* SELECT BOX TEXT */
+div[data-baseweb="select"] > div {
+    background-color: #FFFFFF !important;
+}
+
 div[data-baseweb="select"] *,
 div[data-baseweb="input"] input {
     color: #263F55 !important;
@@ -208,14 +207,29 @@ div[data-baseweb="input"] input {
 }
 
 /* EXPANDERS */
+[data-testid="stExpander"] {
+    background-color: #FFFFFF !important;
+    border: 1px solid #E1EAF3 !important;
+    border-radius: 9px;
+}
+
 [data-testid="stExpander"] summary,
 [data-testid="stExpander"] summary p {
     color: #244D70 !important;
 }
 
-/* INFO / WARNING MESSAGES */
+/* ALERT MESSAGES */
+[data-testid="stAlert"] {
+    background-color: #FFFFFF !important;
+}
+
 [data-testid="stAlert"] p {
     color: #344F68 !important;
+}
+
+/* DATAFRAMES */
+[data-testid="stDataFrame"] {
+    background-color: #FFFFFF !important;
 }
 
 /* DIVIDERS */
