@@ -1137,13 +1137,22 @@ else:
 
     # FILTER BY MODEL
 
+   ALERT_MODEL_NAMES = {
+        "decision tree": "decision tree (p2)",
+        "neural network": "neural network (p3)",
+    }
+
     if alert_model_col:
+
+        alert_model_name = ALERT_MODEL_NAMES.get(
+            normalise(selected_model),
+            normalise(selected_model)
+        )
 
         alert_data = alert_data[
             alert_data[alert_model_col].apply(normalise)
-            == normalise(selected_model)
+            == alert_model_name
         ]
-
 
     if severity_col and not alert_data.empty:
 
