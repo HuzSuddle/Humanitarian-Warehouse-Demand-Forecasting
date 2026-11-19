@@ -1136,10 +1136,10 @@ else:
 
 
     # FILTER BY MODEL
-ALERT_MODEL_NAMES = {
-    "decision tree": "decision tree (p2)",
-    "neural network": "neural network (p3)",
-}
+    ALERT_MODEL_NAMES = {
+        "decision tree": "decision tree (p2)",
+        "neural network": "neural network (p3)",
+    }
 
     if alert_model_col:
 
