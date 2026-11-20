@@ -250,38 +250,50 @@ For reproducible installation, use the dependency versions specified in that fil
 
 ## 12. Repository Structure
 
-The main application and dependency file are located in the project root.
+The repository contains the Streamlit application, processed dataset, model evaluation notebook, prediction results and visualisation outputs.
 
 ```text
 Humanitarian-Warehouse-Demand-Forecasting/
 │
-├── app.py
-├── requirements.txt
-├── README.md
-│
-├── data/
-│   └── clean_weekly_demand.csv
-│
-├── notebooks/
-│   └── Model development and experimentation notebooks
-│
+├── .devcontainer/
+├── .streamlit/
 ├── outputs/
-│   └── Generated predictions and evaluation results
-
+│
+├── 218_Evaluation_(1).ipynb
+├── app.py
+├── clean_weekly_demand.csv
+├── all_test_predictions.csv
+├── model_comparison_results.csv
+├── nn_predictions.csv
+│
+├── fig_actual_vs_predicted.png
+├── fig_cover_by_sku.png
+├── fig_example_sku_alerts.png
+├── fig_mae_by_category.png
+├── fig_model_comparison.png
+├── fig_test_alerts.png
+├── fig_walkforward_alerts.png
+│
+├── requirements.txt
+├── .gitignore
+└── README.md
 ```
-
-The directory names and notebook/output contents should match the files committed to the repository.
 
 ### Main project components
 
 | Component | Responsibility |
 |---|---|
-| `app.py` | Runs the Streamlit dashboard. |
-| `requirements.txt` | Lists the Python dependencies required to run the project. |
-| `data/` | Contains the processed forecasting dataset, where included. |
-| `notebooks/` | Contains the model development, preprocessing and evaluation work. |
-| `outputs/` | Stores generated predictions and evaluation results, where included. |
-| `tests/` | Contains automated software tests, if implemented. |
+| `app.py` | Runs the interactive Streamlit dashboard. |
+| `218_Evaluation_(1).ipynb` | Contains model evaluation and experimentation. |
+| `clean_weekly_demand.csv` | Contains the processed weekly demand dataset. |
+| `all_test_predictions.csv` | Stores model predictions for the test observations. |
+| `model_comparison_results.csv` | Stores forecasting model comparison results. |
+| `nn_predictions.csv` | Stores Dense Neural Network predictions. |
+| `outputs/` | Contains generated evaluation and prediction outputs. |
+| `fig_*.png` | Contains generated evaluation and visualisation figures. |
+| `requirements.txt` | Lists Python package dependencies. |
+| `.streamlit/` | Contains Streamlit application configuration. |
+| `.devcontainer/` | Contains development container configuration. |
 
 ## 13. Installation and Setup
 
